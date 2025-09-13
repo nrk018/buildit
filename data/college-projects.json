@@ -1,0 +1,245 @@
+{
+  "projects": [
+    {
+      "id": "proj_001",
+      "title": "AI-Powered Campus Safety System",
+      "description": "Developed a computer vision system to detect safety hazards in college campuses using machine learning and IoT sensors",
+      "category": "Safety",
+      "technologies": ["Python", "OpenCV", "TensorFlow", "IoT", "Computer Vision"],
+      "team_members": [
+        {
+          "name": "Priya Sharma",
+          "role": "Lead Developer",
+          "skills": ["Python", "Machine Learning", "Computer Vision", "IoT"],
+          "year": "Final Year",
+          "branch": "Computer Science",
+          "college": "IIT Delhi",
+          "email": "priya.sharma@iitd.ac.in",
+          "linkedin": "linkedin.com/in/priya-sharma-iitd",
+          "github": "github.com/priyasharma",
+          "projects": ["AI Safety System", "Smart Campus App", "IoT Dashboard"],
+          "interests": ["AI/ML", "Computer Vision", "Safety Technology", "IoT"],
+          "availability": "Part-time (20hrs/week)",
+          "match_score": 95
+        },
+        {
+          "name": "Arjun Patel",
+          "role": "Backend Developer",
+          "skills": ["Node.js", "Python", "Database Design", "API Development"],
+          "year": "Final Year",
+          "branch": "Information Technology",
+          "college": "IIT Delhi",
+          "email": "arjun.patel@iitd.ac.in",
+          "linkedin": "linkedin.com/in/arjun-patel-iitd",
+          "github": "github.com/arjunpatel",
+          "projects": ["AI Safety System", "E-commerce Platform", "Social Media App"],
+          "interests": ["Backend Development", "AI/ML", "Database Systems", "API Design"],
+          "availability": "Full-time",
+          "match_score": 88
+        }
+      ],
+      "keywords": ["safety", "ai", "computer vision", "iot", "campus", "detection", "monitoring"]
+    },
+    {
+      "id": "proj_002",
+      "title": "Smart Maintenance Management System",
+      "description": "Created an automated system for tracking and managing maintenance tasks in college facilities using AI and mobile apps",
+      "category": "Maintenance",
+      "technologies": ["React Native", "Node.js", "MongoDB", "AI", "Mobile Development"],
+      "team_members": [
+        {
+          "name": "Sneha Reddy",
+          "role": "Full Stack Developer",
+          "skills": ["React", "Node.js", "MongoDB", "Mobile Development", "UI/UX"],
+          "year": "Final Year",
+          "branch": "Computer Science",
+          "college": "IIT Bombay",
+          "email": "sneha.reddy@iitb.ac.in",
+          "linkedin": "linkedin.com/in/sneha-reddy-iitb",
+          "github": "github.com/snehareddy",
+          "projects": ["Maintenance System", "Food Delivery App", "Learning Platform"],
+          "interests": ["Full Stack Development", "Mobile Apps", "UI/UX Design", "AI Integration"],
+          "availability": "Part-time (25hrs/week)",
+          "match_score": 92
+        },
+        {
+          "name": "Rahul Kumar",
+          "role": "AI/ML Engineer",
+          "skills": ["Python", "TensorFlow", "Data Science", "Predictive Analytics"],
+          "year": "Final Year",
+          "branch": "Data Science",
+          "college": "IIT Bombay",
+          "email": "rahul.kumar@iitb.ac.in",
+          "linkedin": "linkedin.com/in/rahul-kumar-iitb",
+          "github": "github.com/rahulkumar",
+          "projects": ["Maintenance System", "Stock Prediction", "Image Recognition"],
+          "interests": ["Machine Learning", "Data Science", "Predictive Analytics", "AI"],
+          "availability": "Part-time (20hrs/week)",
+          "match_score": 90
+        }
+      ],
+      "keywords": ["maintenance", "ai", "mobile", "automation", "facilities", "management", "predictive"]
+    },
+    {
+      "id": "proj_003",
+      "title": "Campus Operations Optimization Platform",
+      "description": "Built a comprehensive platform to optimize various campus operations including scheduling, resource allocation, and workflow management",
+      "category": "Operations",
+      "technologies": ["Vue.js", "Python", "PostgreSQL", "Docker", "Microservices"],
+      "team_members": [
+        {
+          "name": "Ananya Singh",
+          "role": "Frontend Developer",
+          "skills": ["Vue.js", "React", "JavaScript", "UI/UX Design", "Web Development"],
+          "year": "Final Year",
+          "branch": "Computer Science",
+          "college": "IIT Madras",
+          "email": "ananya.singh@iitm.ac.in",
+          "linkedin": "linkedin.com/in/ananya-singh-iitm",
+          "github": "github.com/ananyasingh",
+          "projects": ["Operations Platform", "E-learning System", "Portfolio Website"],
+          "interests": ["Frontend Development", "UI/UX Design", "Web Technologies", "User Experience"],
+          "availability": "Full-time",
+          "match_score": 85
+        },
+        {
+          "name": "Vikram Joshi",
+          "role": "DevOps Engineer",
+          "skills": ["Docker", "Kubernetes", "AWS", "CI/CD", "System Administration"],
+          "year": "Final Year",
+          "branch": "Information Technology",
+          "college": "IIT Madras",
+          "email": "vikram.joshi@iitm.ac.in",
+          "linkedin": "linkedin.com/in/vikram-joshi-iitm",
+          "github": "github.com/vikramjoshi",
+          "projects": ["Operations Platform", "Cloud Migration", "Monitoring System"],
+          "interests": ["DevOps", "Cloud Computing", "System Administration", "Automation"],
+          "availability": "Part-time (15hrs/week)",
+          "match_score": 87
+        }
+      ],
+      "keywords": ["operations", "optimization", "scheduling", "resource", "workflow", "management", "platform"]
+    },
+    {
+      "id": "proj_004",
+      "title": "AI-Driven Quality Control System",
+      "description": "Developed an AI system for automated quality control in manufacturing processes with real-time monitoring and alerting",
+      "category": "Quality Control",
+      "technologies": ["Python", "OpenCV", "Machine Learning", "Raspberry Pi", "Computer Vision"],
+      "team_members": [
+        {
+          "name": "Kavya Nair",
+          "role": "AI/ML Specialist",
+          "skills": ["Python", "Machine Learning", "Computer Vision", "Deep Learning", "Data Analysis"],
+          "year": "Final Year",
+          "branch": "Artificial Intelligence",
+          "college": "IIT Kanpur",
+          "email": "kavya.nair@iitk.ac.in",
+          "linkedin": "linkedin.com/in/kavya-nair-iitk",
+          "github": "github.com/kavyanair",
+          "projects": ["Quality Control System", "Medical Image Analysis", "NLP Chatbot"],
+          "interests": ["AI/ML", "Computer Vision", "Deep Learning", "Data Science"],
+          "availability": "Full-time",
+          "match_score": 94
+        },
+        {
+          "name": "Rohit Agarwal",
+          "role": "Hardware Engineer",
+          "skills": ["Embedded Systems", "Raspberry Pi", "Arduino", "IoT", "Hardware Design"],
+          "year": "Final Year",
+          "branch": "Electronics Engineering",
+          "college": "IIT Kanpur",
+          "email": "rohit.agarwal@iitk.ac.in",
+          "linkedin": "linkedin.com/in/rohit-agarwal-iitk",
+          "github": "github.com/rohitagarwal",
+          "projects": ["Quality Control System", "Smart Home System", "Robotics Project"],
+          "interests": ["Embedded Systems", "IoT", "Hardware Design", "Robotics"],
+          "availability": "Part-time (20hrs/week)",
+          "match_score": 89
+        }
+      ],
+      "keywords": ["quality", "control", "ai", "manufacturing", "monitoring", "automation", "computer vision"]
+    },
+    {
+      "id": "proj_005",
+      "title": "Smart Campus Energy Management",
+      "description": "Created an intelligent energy management system for college campuses with predictive analytics and automated controls",
+      "category": "Energy Management",
+      "technologies": ["React", "Python", "IoT", "Machine Learning", "Energy Analytics"],
+      "team_members": [
+        {
+          "name": "Meera Iyer",
+          "role": "Data Scientist",
+          "skills": ["Python", "Data Science", "Machine Learning", "Energy Analytics", "Statistics"],
+          "year": "Final Year",
+          "branch": "Data Science",
+          "college": "IIT Hyderabad",
+          "email": "meera.iyer@iith.ac.in",
+          "linkedin": "linkedin.com/in/meera-iyer-iith",
+          "github": "github.com/meeraiyer",
+          "projects": ["Energy Management", "Climate Data Analysis", "Predictive Modeling"],
+          "interests": ["Data Science", "Energy Analytics", "Sustainability", "Machine Learning"],
+          "availability": "Part-time (25hrs/week)",
+          "match_score": 91
+        },
+        {
+          "name": "Aditya Verma",
+          "role": "IoT Developer",
+          "skills": ["IoT", "Embedded Systems", "Python", "Hardware Integration", "Sensor Networks"],
+          "year": "Final Year",
+          "branch": "Electronics Engineering",
+          "college": "IIT Hyderabad",
+          "email": "aditya.verma@iith.ac.in",
+          "linkedin": "linkedin.com/in/aditya-verma-iith",
+          "github": "github.com/adityaverma",
+          "projects": ["Energy Management", "Smart Agriculture", "Environmental Monitoring"],
+          "interests": ["IoT", "Embedded Systems", "Sustainability", "Hardware Development"],
+          "availability": "Full-time",
+          "match_score": 88
+        }
+      ],
+      "keywords": ["energy", "management", "iot", "sustainability", "analytics", "smart", "campus"]
+    },
+    {
+      "id": "proj_006",
+      "title": "Automated Inventory Management System",
+      "description": "Built an AI-powered inventory management system for college stores and laboratories with real-time tracking and predictive restocking",
+      "category": "Inventory Management",
+      "technologies": ["React", "Node.js", "MongoDB", "AI", "Barcode Scanning"],
+      "team_members": [
+        {
+          "name": "Shreya Gupta",
+          "role": "Full Stack Developer",
+          "skills": ["React", "Node.js", "MongoDB", "API Development", "Database Design"],
+          "year": "Final Year",
+          "branch": "Computer Science",
+          "college": "IIT Roorkee",
+          "email": "shreya.gupta@iitr.ac.in",
+          "linkedin": "linkedin.com/in/shreya-gupta-iitr",
+          "github": "github.com/shreyagupta",
+          "projects": ["Inventory System", "E-commerce Platform", "Task Management App"],
+          "interests": ["Full Stack Development", "Database Systems", "API Design", "Web Development"],
+          "availability": "Part-time (20hrs/week)",
+          "match_score": 86
+        },
+        {
+          "name": "Nikhil Sharma",
+          "role": "Mobile Developer",
+          "skills": ["React Native", "Flutter", "Mobile Development", "UI/UX", "Cross-platform"],
+          "year": "Final Year",
+          "branch": "Information Technology",
+          "college": "IIT Roorkee",
+          "email": "nikhil.sharma@iitr.ac.in",
+          "linkedin": "linkedin.com/in/nikhil-sharma-iitr",
+          "github": "github.com/nikhilsharma",
+          "projects": ["Inventory System", "Fitness App", "Social Media App"],
+          "interests": ["Mobile Development", "Cross-platform", "UI/UX Design", "App Development"],
+          "availability": "Full-time",
+          "match_score": 84
+        }
+      ],
+      "keywords": ["inventory", "management", "ai", "tracking", "automation", "barcode", "restocking"]
+    }
+  ]
+}
+
