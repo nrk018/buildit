@@ -20,6 +20,15 @@ export async function POST(request: NextRequest) {
     }
 
     const planDetails = SUBSCRIPTION_PLANS[plan as keyof typeof SUBSCRIPTION_PLANS]
+    
+    // Check if Razorpay is configured
+    if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+      return NextResponse.json(
+        { error: 'Payment system not configured. Please contact support.' },
+        { status: 503 }
+      )
+    }
+
     const order = await createOrder(planDetails.price, planDetails.currency)
 
     return NextResponse.json({
@@ -33,8 +42,16 @@ export async function POST(request: NextRequest) {
       plan: planDetails
     })
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Create order error:', error)
+    
+    if (error.message?.includes('Razorpay not configured')) {
+      return NextResponse.json(
+        { error: 'Payment system not configured. Please contact support.' },
+        { status: 503 }
+      )
+    }
+    
     return NextResponse.json(
       { error: 'Failed to create order' },
       { status: 500 }

@@ -1,6 +1,13 @@
 import { sql } from '@vercel/postgres'
 import { NextRequest } from 'next/server'
 
+// Check if database is configured
+const isDatabaseConfigured = () => {
+  return process.env.POSTGRES_URL && 
+         process.env.POSTGRES_URL !== 'your_postgres_connection_string_here' &&
+         !process.env.POSTGRES_URL.includes('your_postgres_connection_string')
+}
+
 // Database schema for the full-stack application
 
 export interface User {
@@ -66,6 +73,11 @@ export interface Payment {
 // Database initialization
 export async function initDatabase() {
   try {
+    if (!isDatabaseConfigured()) {
+      console.log('Database not configured. Skipping table creation.')
+      return
+    }
+
     // Create users table
     await sql`
       CREATE TABLE IF NOT EXISTS users (

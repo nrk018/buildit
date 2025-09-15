@@ -1,10 +1,12 @@
 import Razorpay from 'razorpay'
 
-// Initialize Razorpay
-export const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID!,
-  key_secret: process.env.RAZORPAY_KEY_SECRET!,
-})
+// Initialize Razorpay only if keys are available
+export const razorpay = process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET 
+  ? new Razorpay({
+      key_id: process.env.RAZORPAY_KEY_ID,
+      key_secret: process.env.RAZORPAY_KEY_SECRET,
+    })
+  : null
 
 // Subscription plans
 export const SUBSCRIPTION_PLANS = {
@@ -40,6 +42,10 @@ export const SUBSCRIPTION_PLANS = {
 // Create Razorpay order
 export async function createOrder(amount: number, currency: string = 'INR') {
   try {
+    if (!razorpay) {
+      throw new Error('Razorpay not configured. Please set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET environment variables.')
+    }
+
     const options = {
       amount: amount * 100, // Razorpay expects amount in paise
       currency,
@@ -57,6 +63,10 @@ export async function createOrder(amount: number, currency: string = 'INR') {
 // Create Razorpay customer
 export async function createCustomer(email: string, name: string) {
   try {
+    if (!razorpay) {
+      throw new Error('Razorpay not configured. Please set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET environment variables.')
+    }
+
     const customer = await razorpay.customers.create({
       name,
       email,
@@ -71,6 +81,10 @@ export async function createCustomer(email: string, name: string) {
 // Create Razorpay subscription
 export async function createSubscription(planId: string, customerId: string) {
   try {
+    if (!razorpay) {
+      throw new Error('Razorpay not configured. Please set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET environment variables.')
+    }
+
     const subscription = await razorpay.subscriptions.create({
       plan_id: planId,
       customer_id: customerId,
@@ -102,6 +116,10 @@ export function verifyPaymentSignature(
 // Get subscription details
 export async function getSubscription(subscriptionId: string) {
   try {
+    if (!razorpay) {
+      throw new Error('Razorpay not configured. Please set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET environment variables.')
+    }
+
     const subscription = await razorpay.subscriptions.fetch(subscriptionId)
     return subscription
   } catch (error) {
@@ -113,6 +131,10 @@ export async function getSubscription(subscriptionId: string) {
 // Cancel subscription
 export async function cancelSubscription(subscriptionId: string) {
   try {
+    if (!razorpay) {
+      throw new Error('Razorpay not configured. Please set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET environment variables.')
+    }
+
     const subscription = await razorpay.subscriptions.cancel(subscriptionId)
     return subscription
   } catch (error) {
