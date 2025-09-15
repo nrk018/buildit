@@ -65,10 +65,66 @@ export default function MVPPage() {
     low: "bg-green-100 text-green-800 border-green-200",
   }
 
-  // Load experiments when component mounts
+  // Load experiments and user data when component mounts
   useEffect(() => {
     loadExperiments()
+    loadUserData()
   }, [])
+
+  // Function to load user data from localStorage
+  const loadUserData = () => {
+    try {
+      // Load problem statement and related data
+      const problemStatement = localStorage.getItem('problemStatement') || ''
+      const analyzedProblems = JSON.parse(localStorage.getItem('analyzedProblems') || '[]')
+      const generatedSolutions = JSON.parse(localStorage.getItem('generatedSolutions') || '[]')
+      const businessModel = JSON.parse(localStorage.getItem('businessModel') || '{}')
+      const teamData = JSON.parse(localStorage.getItem('teamData') || '{}')
+      const marketAnalysis = JSON.parse(localStorage.getItem('marketAnalysis') || '{}')
+      
+      // Auto-populate MVP data based on user's idea
+      if (problemStatement) {
+        setMvpData(prev => ({
+          ...prev,
+          goal: prev.goal || `Validate the core value proposition for: ${problemStatement.substring(0, 100)}...`,
+          targetUsers: prev.targetUsers || 'College students and campus administrators',
+          successMetrics: prev.successMetrics || 'User engagement, problem resolution rate, user satisfaction',
+          techStack: prev.techStack || 'React, Node.js, Python, AI/ML frameworks',
+          integrations: prev.integrations || 'Campus systems, mobile apps, web platforms',
+          technicalConstraints: prev.technicalConstraints || 'Budget limitations, campus infrastructure, user adoption',
+          architecture: prev.architecture || 'Scalable cloud-based architecture with mobile-first design',
+          phase1: prev.phase1 || 'Core feature development and initial user testing',
+          phase2: prev.phase2 || 'Feature enhancement and user feedback integration',
+          phase3: prev.phase3 || 'Full deployment and scaling',
+          launchDate: prev.launchDate || '3-6 months from development start',
+          developmentBudget: prev.developmentBudget || '₹2,00,000 - ₹5,00,000',
+          testingApproach: prev.testingApproach || 'User testing with campus community, A/B testing',
+          testUsers: prev.testUsers || '50-100 initial users from target campus',
+          testingDuration: prev.testingDuration || '4-6 weeks',
+          feedbackCollection: prev.feedbackCollection || 'Surveys, interviews, usage analytics',
+          iterationPlan: prev.iterationPlan || 'Weekly sprints with user feedback integration'
+        }))
+      }
+
+      // Auto-populate features based on solutions
+      if (generatedSolutions.length > 0) {
+        const autoFeatures = generatedSolutions.slice(0, 5).map((solution, index) => ({
+          id: Date.now() + index,
+          name: solution.title || `Feature ${index + 1}`,
+          description: solution.description || 'Auto-generated feature description',
+          priority: index < 2 ? 'high' : index < 4 ? 'medium' : 'low',
+          effort: index < 2 ? 'High' : index < 4 ? 'Medium' : 'Low',
+          userStory: `As a user, I want ${solution.title?.toLowerCase() || 'this feature'} so that I can ${solution.description?.toLowerCase().substring(0, 50) || 'achieve my goals'}`
+        }))
+        
+        if (features.length === 1 && !features[0].name) {
+          setFeatures(autoFeatures)
+        }
+      }
+    } catch (error) {
+      console.error('Error loading user data:', error)
+    }
+  }
 
   // Function to load experiments
   const loadExperiments = async () => {
@@ -106,9 +162,15 @@ export default function MVPPage() {
   const generateMVPDocument = async () => {
     setLoading(true)
     try {
+      // Gather all user-specific data
       const problemStatement = localStorage.getItem('problemStatement') || ''
+      const analyzedProblems = JSON.parse(localStorage.getItem('analyzedProblems') || '[]')
+      const generatedSolutions = JSON.parse(localStorage.getItem('generatedSolutions') || '[]')
       const businessModel = JSON.parse(localStorage.getItem('businessModel') || '{}')
       const teamData = JSON.parse(localStorage.getItem('teamData') || '{}')
+      const marketAnalysis = JSON.parse(localStorage.getItem('marketAnalysis') || '{}')
+      const pitchDocument = JSON.parse(localStorage.getItem('pitchDocument') || '{}')
+      const imageAnalysis = JSON.parse(localStorage.getItem('imageAnalysis') || '{}')
       
       const response = await fetch('/api/generate-mvp-document', {
         method: 'POST',
@@ -117,15 +179,22 @@ export default function MVPPage() {
         },
         body: JSON.stringify({
           problemStatement,
+          analyzedProblems,
+          generatedSolutions,
           businessModel,
           teamData,
+          marketAnalysis,
+          pitchDocument,
+          imageAnalysis,
           mvpData: {
             ...mvpData,
             features: features.filter(f => f.name && f.description)
           },
           experiments,
           targetMarket: localStorage.getItem('targetMarket') || 'College campuses in India',
-          industry: localStorage.getItem('industry') || 'EdTech/Safety Technology'
+          industry: localStorage.getItem('industry') || 'EdTech/Safety Technology',
+          userLocation: 'India',
+          collegeContext: true
         }),
       })
 
@@ -145,92 +214,324 @@ export default function MVPPage() {
   const downloadMVPDocument = () => {
     if (!mvpDocument) return
 
-    const documentContent = `
-# MVP Document
+    // Get user-specific data for the document
+    const problemStatement = localStorage.getItem('problemStatement') || ''
+    const teamData = JSON.parse(localStorage.getItem('teamData') || '{}')
+    const businessModel = JSON.parse(localStorage.getItem('businessModel') || '{}')
+    const marketAnalysis = JSON.parse(localStorage.getItem('marketAnalysis') || '{}')
+    const generatedSolutions = JSON.parse(localStorage.getItem('generatedSolutions') || '[]')
 
-## Executive Summary
-**Problem Statement:** ${mvpDocument.executiveSummary.problemStatement}
-**Solution Overview:** ${mvpDocument.executiveSummary.solutionOverview}
-**Market Opportunity:** ${mvpDocument.executiveSummary.marketOpportunity}
+    const documentContent = generateComprehensiveMVPDocument(mvpDocument, problemStatement, teamData, businessModel, marketAnalysis, generatedSolutions, mvpData, features, experiments)
 
-### Value Propositions
-${mvpDocument.executiveSummary.valuePropositions.map((vp: string) => `- ${vp}`).join('\n')}
-
-### MVP Goals
-${mvpDocument.executiveSummary.mvpGoals.map((goal: string) => `- ${goal}`).join('\n')}
-
-### Success Metrics
-${mvpDocument.executiveSummary.successMetrics.map((metric: string) => `- ${metric}`).join('\n')}
-
-## Market Analysis
-**Target Market:** ${mvpDocument.marketAnalysis.targetMarket}
-**Market Size:** ${mvpDocument.marketAnalysis.marketSize}
-**Competitive Landscape:** ${mvpDocument.marketAnalysis.competitiveLandscape}
-
-### Customer Segments
-${mvpDocument.marketAnalysis.customerSegments.map((segment: string) => `- ${segment}`).join('\n')}
-
-## Product Overview
-### Feature Set
-${mvpDocument.productOverview.featureSet.map((feature: string) => `- ${feature}`).join('\n')}
-
-### User Stories
-${mvpDocument.productOverview.userStories.map((story: string) => `- ${story}`).join('\n')}
-
-**Technical Architecture:** ${mvpDocument.productOverview.technicalArchitecture}
-**User Experience Flow:** ${mvpDocument.productOverview.userExperienceFlow}
-
-## Team & Organization
-**Team Structure:** ${mvpDocument.teamOrganization.teamStructure}
-**Organizational Chart:** ${mvpDocument.teamOrganization.organizationalChart}
-**Hiring Plan:** ${mvpDocument.teamOrganization.hiringPlan}
-
-### Key Members
-${mvpDocument.teamOrganization.keyMembers.map((member: string) => `- ${member}`).join('\n')}
-
-## Business Model
-### Revenue Streams
-${mvpDocument.businessModel.revenueStreams.map((stream: string) => `- ${stream}`).join('\n')}
-
-**Pricing Strategy:** ${mvpDocument.businessModel.pricingStrategy}
-**Cost Structure:** ${mvpDocument.businessModel.costStructure}
-
-### Key Partnerships
-${mvpDocument.businessModel.keyPartnerships.map((partnership: string) => `- ${partnership}`).join('\n')}
-
-## Validation Strategy
-**Experiment Plan:** ${mvpDocument.validationStrategy.experimentPlan}
-**Risk Mitigation:** ${mvpDocument.validationStrategy.riskMitigation}
-**Iteration Plan:** ${mvpDocument.validationStrategy.iterationPlan}
-
-### Success Metrics
-${mvpDocument.validationStrategy.successMetrics.map((metric: string) => `- ${metric}`).join('\n')}
-
-## Development Plan
-**Technical Requirements:** ${mvpDocument.developmentPlan.technicalRequirements}
-**Development Timeline:** ${mvpDocument.developmentPlan.developmentTimeline}
-**Resource Allocation:** ${mvpDocument.developmentPlan.resourceAllocation}
-**Launch Strategy:** ${mvpDocument.developmentPlan.launchStrategy}
-
-## Financial Projections
-**Development Costs:** ${mvpDocument.financialProjections.developmentCosts}
-**Operating Expenses:** ${mvpDocument.financialProjections.operatingExpenses}
-**Revenue Projections:** ${mvpDocument.financialProjections.revenueProjections}
-**Funding Requirements:** ${mvpDocument.financialProjections.fundingRequirements}
-
----
-*Generated on ${new Date().toLocaleDateString()}*
-    `
-
-    const blob = new Blob([documentContent], { type: 'text/markdown' })
+    const blob = new Blob([documentContent], { type: 'text/plain;charset=utf-8' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `MVP_Document_${new Date().toISOString().split('T')[0]}.md`
+    a.download = `MVP_Document_${new Date().toISOString().split('T')[0]}.txt`
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)
     URL.revokeObjectURL(url)
+  }
+
+  // Function to generate comprehensive MVP document content
+  const generateComprehensiveMVPDocument = (mvpDoc: any, problemStatement: string, teamData: any, businessModel: any, marketAnalysis: any, generatedSolutions: any[], mvpData: any, features: any[], experiments: any) => {
+    const currentDate = new Date().toLocaleDateString()
+    const currentTime = new Date().toLocaleTimeString()
+
+    return `
+MVP DOCUMENT
+${problemStatement.toUpperCase()}
+
+Generated on: ${currentDate} at ${currentTime}
+Document Version: 1.0
+
+================================================================================
+EXECUTIVE SUMMARY
+================================================================================
+
+Problem Statement:
+${mvpDoc.executiveSummary.problemStatement}
+
+Solution Overview:
+${mvpDoc.executiveSummary.solutionOverview}
+
+Market Opportunity:
+${mvpDoc.executiveSummary.marketOpportunity}
+
+Value Propositions:
+${mvpDoc.executiveSummary.valuePropositions.map((vp: string, index: number) => `${index + 1}. ${vp}`).join('\n')}
+
+Team Overview:
+${mvpDoc.executiveSummary.teamOverview}
+
+MVP Goals:
+${mvpDoc.executiveSummary.mvpGoals.map((goal: string, index: number) => `${index + 1}. ${goal}`).join('\n')}
+
+Success Metrics:
+${mvpDoc.executiveSummary.successMetrics.map((metric: string, index: number) => `${index + 1}. ${metric}`).join('\n')}
+
+================================================================================
+MARKET ANALYSIS
+================================================================================
+
+Target Market:
+${mvpDoc.marketAnalysis.targetMarket}
+
+Market Size:
+${mvpDoc.marketAnalysis.marketSize}
+
+Competitive Landscape:
+${mvpDoc.marketAnalysis.competitiveLandscape}
+
+Customer Segments:
+${mvpDoc.marketAnalysis.customerSegments.map((segment: string, index: number) => `${index + 1}. ${segment}`).join('\n')}
+
+================================================================================
+PRODUCT OVERVIEW
+================================================================================
+
+Feature Set:
+${mvpDoc.productOverview.featureSet.map((feature: string, index: number) => `${index + 1}. ${feature}`).join('\n')}
+
+User Stories:
+${mvpDoc.productOverview.userStories.map((story: string, index: number) => `${index + 1}. ${story}`).join('\n')}
+
+Technical Architecture:
+${mvpDoc.productOverview.technicalArchitecture}
+
+User Experience Flow:
+${mvpDoc.productOverview.userExperienceFlow}
+
+================================================================================
+TEAM & ORGANIZATION
+================================================================================
+
+Team Structure:
+${mvpDoc.teamOrganization.teamStructure}
+
+Key Members:
+${mvpDoc.teamOrganization.keyMembers.map((member: string, index: number) => `${index + 1}. ${member}`).join('\n')}
+
+Organizational Chart:
+${mvpDoc.teamOrganization.organizationalChart}
+
+Hiring Plan:
+${mvpDoc.teamOrganization.hiringPlan}
+
+================================================================================
+BUSINESS MODEL
+================================================================================
+
+Revenue Streams:
+${mvpDoc.businessModel.revenueStreams.map((stream: string, index: number) => `${index + 1}. ${stream}`).join('\n')}
+
+Pricing Strategy:
+${mvpDoc.businessModel.pricingStrategy}
+
+Cost Structure:
+${mvpDoc.businessModel.costStructure}
+
+Key Partnerships:
+${mvpDoc.businessModel.keyPartnerships.map((partnership: string, index: number) => `${index + 1}. ${partnership}`).join('\n')}
+
+================================================================================
+VALIDATION STRATEGY
+================================================================================
+
+Experiment Plan:
+${mvpDoc.validationStrategy.experimentPlan}
+
+Success Metrics:
+${mvpDoc.validationStrategy.successMetrics.map((metric: string, index: number) => `${index + 1}. ${metric}`).join('\n')}
+
+Risk Mitigation:
+${mvpDoc.validationStrategy.riskMitigation}
+
+Iteration Plan:
+${mvpDoc.validationStrategy.iterationPlan}
+
+================================================================================
+DEVELOPMENT PLAN
+================================================================================
+
+Technical Requirements:
+${mvpDoc.developmentPlan.technicalRequirements}
+
+Development Timeline:
+${mvpDoc.developmentPlan.developmentTimeline}
+
+Resource Allocation:
+${mvpDoc.developmentPlan.resourceAllocation}
+
+Launch Strategy:
+${mvpDoc.developmentPlan.launchStrategy}
+
+================================================================================
+FINANCIAL PROJECTIONS
+================================================================================
+
+Development Costs:
+${mvpDoc.financialProjections.developmentCosts}
+
+Operating Expenses:
+${mvpDoc.financialProjections.operatingExpenses}
+
+Revenue Projections:
+${mvpDoc.financialProjections.revenueProjections}
+
+Funding Requirements:
+${mvpDoc.financialProjections.fundingRequirements}
+
+================================================================================
+MVP PLANNING DETAILS
+================================================================================
+
+MVP Goal:
+${mvpData.goal || 'Not specified'}
+
+Target Users:
+${mvpData.targetUsers || 'Not specified'}
+
+Success Metrics:
+${mvpData.successMetrics || 'Not specified'}
+
+Tech Stack:
+${mvpData.techStack || 'Not specified'}
+
+Integrations:
+${mvpData.integrations || 'Not specified'}
+
+Technical Constraints:
+${mvpData.technicalConstraints || 'Not specified'}
+
+Architecture:
+${mvpData.architecture || 'Not specified'}
+
+Development Phases:
+Phase 1: ${mvpData.phase1 || 'Not specified'}
+Phase 2: ${mvpData.phase2 || 'Not specified'}
+Phase 3: ${mvpData.phase3 || 'Not specified'}
+
+Launch Date:
+${mvpData.launchDate || 'Not specified'}
+
+Development Budget:
+${mvpData.developmentBudget || 'Not specified'}
+
+Testing Approach:
+${mvpData.testingApproach || 'Not specified'}
+
+Test Users:
+${mvpData.testUsers || 'Not specified'}
+
+Testing Duration:
+${mvpData.testingDuration || 'Not specified'}
+
+Feedback Collection:
+${mvpData.feedbackCollection || 'Not specified'}
+
+Iteration Plan:
+${mvpData.iterationPlan || 'Not specified'}
+
+================================================================================
+MVP FEATURES
+================================================================================
+
+${features.filter(f => f.name && f.description).map((feature, index) => `
+Feature ${index + 1}: ${feature.name}
+Description: ${feature.description}
+Priority: ${feature.priority}
+Effort: ${feature.effort}
+User Story: ${feature.userStory}
+`).join('\n')}
+
+================================================================================
+VALIDATION EXPERIMENTS
+================================================================================
+
+${experiments ? Object.entries(experiments).map(([key, experiment]: [string, any]) => `
+${key.toUpperCase()}:
+${experiment.description || 'No description available'}
+Cost: ${experiment.cost || 'Not specified'}
+Timeline: ${experiment.timeline || 'Not specified'}
+Success Metrics: ${experiment.successMetrics || 'Not specified'}
+`).join('\n') : 'No experiments available'}
+
+================================================================================
+GENERATED SOLUTIONS INTEGRATION
+================================================================================
+
+${generatedSolutions.length > 0 ? generatedSolutions.map((solution, index) => `
+Solution ${index + 1}: ${solution.title}
+Description: ${solution.description}
+Category: ${solution.category}
+Cost: ${solution.cost}
+Timeline: ${solution.timeline}
+Effectiveness: ${solution.effectiveness}%
+Implementation: ${solution.implementation.join(', ')}
+`).join('\n') : 'No solutions available'}
+
+================================================================================
+TEAM DETAILS
+================================================================================
+
+${teamData.founder ? `
+Founder:
+Name: ${teamData.founder.name || 'Not specified'}
+Title: ${teamData.founder.title || 'Not specified'}
+Background: ${teamData.founder.background || 'Not specified'}
+Motivation: ${teamData.founder.motivation || 'Not specified'}
+` : 'No founder information available'}
+
+Team Members:
+${teamData.teamMembers && teamData.teamMembers.length > 0 ? teamData.teamMembers.map((member: any, index: number) => `
+${index + 1}. ${member.name}
+   Role: ${member.role}
+   Skills: ${member.skills}
+   Equity: ${member.equity}
+   Commitment: ${member.commitment}
+`).join('\n') : 'No team members added'}
+
+Advisors:
+${teamData.advisors && teamData.advisors.length > 0 ? teamData.advisors.map((advisor: any, index: number) => `
+${index + 1}. ${advisor.name}
+   Role: ${advisor.role}
+   Expertise: ${advisor.expertise}
+   Company: ${advisor.company}
+   Contact: ${advisor.contact}
+`).join('\n') : 'No advisors added'}
+
+Mentors:
+${teamData.mentors && teamData.mentors.length > 0 ? teamData.mentors.map((mentor: any, index: number) => `
+${index + 1}. ${mentor.name}
+   Role: ${mentor.role}
+   Expertise: ${mentor.expertise}
+   Company: ${mentor.company}
+   Contact: ${mentor.contact}
+`).join('\n') : 'No mentors added'}
+
+================================================================================
+DOCUMENT SUMMARY
+================================================================================
+
+Total MVP Features: ${features.filter(f => f.name && f.description).length}
+Total Team Members: ${teamData.teamMembers ? teamData.teamMembers.length : 0}
+Total Advisors: ${teamData.advisors ? teamData.advisors.length : 0}
+Total Mentors: ${teamData.mentors ? teamData.mentors.length : 0}
+Total Solutions: ${generatedSolutions.length}
+Total Experiments: ${experiments ? Object.keys(experiments).length : 0}
+
+Document Generated: ${currentDate} at ${currentTime}
+Generated by: BuildIt AI Platform
+Problem Statement: ${problemStatement.substring(0, 100)}${problemStatement.length > 100 ? '...' : ''}
+
+---
+This MVP document was generated specifically for your analysis of "${problemStatement.substring(0, 50)}${problemStatement.length > 50 ? '...' : ''}" 
+and includes comprehensive planning for implementation, team structure, and validation strategy.
+
+For questions or support, please refer to the BuildIt AI Platform documentation.
+    `
   }
 
   return (
@@ -725,7 +1026,7 @@ ${mvpDocument.validationStrategy.successMetrics.map((metric: string) => `- ${met
                         </div>
 
                         {/* Overall Validation Summary */}
-                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                        <div className="bg-blue-500/10 dark:bg-blue-500/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6">
                           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                             <Target className="h-5 w-5 text-blue-600" />
                             Overall Validation Plan

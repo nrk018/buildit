@@ -49,6 +49,8 @@ export async function POST(request: NextRequest) {
           - Compliance issues
           - Any specific concerns mentioned in the user's description
           
+          IMPORTANT: All cost estimates must be in Indian Rupees (₹) format, not dollars ($). Use realistic Indian market pricing.
+          
           Return the response as a JSON object with the following structure:
           {
             "problemDescription": "Clear description combining image analysis and user description",
@@ -65,7 +67,7 @@ export async function POST(request: NextRequest) {
                   {
                     "title": "Solution title",
                     "description": "Detailed solution description",
-                    "cost": "$500-$1000",
+                    "cost": "₹41,500-₹83,000",
                     "timeline": "1-2 weeks",
                     "priority": "high|medium|low"
                   }
@@ -94,6 +96,8 @@ export async function POST(request: NextRequest) {
           6. Risk assessment
           7. Success metrics
           
+          IMPORTANT: All cost estimates must be in Indian Rupees (₹) format, not dollars ($). Use realistic Indian market pricing.
+          
           Focus on:
           - Practical, actionable solutions
           - Cost-benefit analysis
@@ -118,7 +122,7 @@ export async function POST(request: NextRequest) {
                   {
                     "title": "Solution title",
                     "description": "Detailed solution description",
-                    "cost": "$500-$1000",
+                    "cost": "₹41,500-₹83,000",
                     "timeline": "1-2 weeks",
                     "priority": "high|medium|low"
                   }

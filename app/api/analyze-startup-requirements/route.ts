@@ -51,6 +51,8 @@ export async function POST(request: NextRequest) {
         ${industry || 'Not specified'}
 
         Based on this information, generate a comprehensive analysis that includes:
+        
+        IMPORTANT: All cost estimates and financial information must be in Indian Rupees (₹) format, not dollars ($). Use realistic Indian market pricing and costs.
 
         1. REQUIRED POSITIONS:
            - Core team positions needed for the first 6-12 months

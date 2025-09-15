@@ -17,6 +17,18 @@ export default function TeamPage() {
   const [teamMembers, setTeamMembers] = useState([
     { id: 1, name: "", role: "", skills: "", equity: "", commitment: "" },
   ])
+  const [advisors, setAdvisors] = useState([
+    { id: 1, name: "", role: "", expertise: "", company: "", contact: "" },
+  ])
+  const [mentors, setMentors] = useState([
+    { id: 1, name: "", role: "", expertise: "", company: "", contact: "" },
+  ])
+  const [founderInfo, setFounderInfo] = useState({
+    name: "",
+    title: "",
+    background: "",
+    motivation: ""
+  })
   const [activeTab, setActiveTab] = useState('current-team')
   const [searchQuery, setSearchQuery] = useState('')
   const [startupRequirements, setStartupRequirements] = useState(null)
@@ -32,6 +44,7 @@ export default function TeamPage() {
   const [showCompletionMessage, setShowCompletionMessage] = useState(false)
   const [workspaceLoading, setWorkspaceLoading] = useState(true)
   const [workspaceError, setWorkspaceError] = useState(false)
+  const [teamCompleted, setTeamCompleted] = useState(false)
 
   // Load startup requirements on component mount
   useEffect(() => {
@@ -239,6 +252,184 @@ export default function TeamPage() {
       analyzeSkillsGap(startupRequirements)
       checkTeamCompletion(startupRequirements)
     }
+  }
+
+  // Advisor management functions
+  const addAdvisor = () => {
+    const newAdvisors = [
+      ...advisors,
+      {
+        id: Date.now(),
+        name: "",
+        role: "",
+        expertise: "",
+        company: "",
+        contact: "",
+      },
+    ]
+    setAdvisors(newAdvisors)
+  }
+
+  const removeAdvisor = (id: number) => {
+    const newAdvisors = advisors.filter((advisor) => advisor.id !== id)
+    setAdvisors(newAdvisors)
+  }
+
+  const updateAdvisor = (id: number, field: string, value: string) => {
+    const newAdvisors = advisors.map(advisor => 
+      advisor.id === id ? { ...advisor, [field]: value } : advisor
+    )
+    setAdvisors(newAdvisors)
+  }
+
+  // Mentor management functions
+  const addMentor = () => {
+    const newMentors = [
+      ...mentors,
+      {
+        id: Date.now(),
+        name: "",
+        role: "",
+        expertise: "",
+        company: "",
+        contact: "",
+      },
+    ]
+    setMentors(newMentors)
+  }
+
+  const removeMentor = (id: number) => {
+    const newMentors = mentors.filter((mentor) => mentor.id !== id)
+    setMentors(newMentors)
+  }
+
+  const updateMentor = (id: number, field: string, value: string) => {
+    const newMentors = mentors.map(mentor => 
+      mentor.id === id ? { ...mentor, [field]: value } : mentor
+    )
+    setMentors(newMentors)
+  }
+
+  // Founder info update
+  const updateFounderInfo = (field: string, value: string) => {
+    setFounderInfo(prev => ({ ...prev, [field]: value }))
+  }
+
+  // Complete team function
+  const completeTeam = () => {
+    setTeamCompleted(true)
+    // Save team data to localStorage
+    const teamData = {
+      founder: founderInfo,
+      teamMembers: teamMembers.filter(member => member.name.trim() !== ""),
+      advisors: advisors.filter(advisor => advisor.name.trim() !== ""),
+      mentors: mentors.filter(mentor => mentor.name.trim() !== ""),
+      completedAt: new Date().toISOString()
+    }
+    localStorage.setItem('teamData', JSON.stringify(teamData))
+  }
+
+  // Download team PDF
+  const downloadTeamPDF = () => {
+    const teamData = {
+      founder: founderInfo,
+      teamMembers: teamMembers.filter(member => member.name.trim() !== ""),
+      advisors: advisors.filter(advisor => advisor.name.trim() !== ""),
+      mentors: mentors.filter(mentor => mentor.name.trim() !== ""),
+      completedAt: new Date().toISOString()
+    }
+
+    const content = generateTeamDocument(teamData)
+    
+    // Create a blob with the content
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' })
+    
+    // Create download link
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `Team_Structure_${new Date().toISOString().split('T')[0]}.txt`
+    
+    // Trigger download
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    
+    // Clean up
+    URL.revokeObjectURL(url)
+  }
+
+  // Generate team document content
+  const generateTeamDocument = (teamData) => {
+    const content = `
+TEAM STRUCTURE DOCUMENT
+Generated on: ${new Date().toLocaleDateString()}
+
+================================================================================
+FOUNDER PROFILE
+================================================================================
+
+Name: ${teamData.founder.name || 'Not specified'}
+Title: ${teamData.founder.title || 'Not specified'}
+
+Background & Expertise:
+${teamData.founder.background || 'Not specified'}
+
+Motivation:
+${teamData.founder.motivation || 'Not specified'}
+
+================================================================================
+TEAM MEMBERS
+================================================================================
+
+${teamData.teamMembers.length > 0 ? teamData.teamMembers.map((member, index) => `
+${index + 1}. ${member.name}
+   Role: ${member.role}
+   Skills & Experience: ${member.skills}
+   Equity: ${member.equity}
+   Time Commitment: ${member.commitment}
+`).join('\n') : 'No team members added yet.'}
+
+================================================================================
+ADVISORS
+================================================================================
+
+${teamData.advisors.length > 0 ? teamData.advisors.map((advisor, index) => `
+${index + 1}. ${advisor.name}
+   Role: ${advisor.role}
+   Expertise: ${advisor.expertise}
+   Company: ${advisor.company}
+   Contact: ${advisor.contact}
+`).join('\n') : 'No advisors added yet.'}
+
+================================================================================
+MENTORS
+================================================================================
+
+${teamData.mentors.length > 0 ? teamData.mentors.map((mentor, index) => `
+${index + 1}. ${mentor.name}
+   Role: ${mentor.role}
+   Expertise: ${mentor.expertise}
+   Company: ${mentor.company}
+   Contact: ${mentor.contact}
+`).join('\n') : 'No mentors added yet.'}
+
+================================================================================
+TEAM SUMMARY
+================================================================================
+
+Total Team Members: ${teamData.teamMembers.length}
+Total Advisors: ${teamData.advisors.length}
+Total Mentors: ${teamData.mentors.length}
+
+Team Completion Date: ${new Date(teamData.completedAt).toLocaleString()}
+
+---
+This team structure document was generated by BuildIt AI Platform
+${new Date().toLocaleString()}
+`
+
+    return content
   }
 
   const filteredMatches = cofounderMatches.filter(match =>
@@ -529,11 +720,23 @@ export default function TeamPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor="founder-name">Full name</Label>
-                        <Input id="founder-name" placeholder="Your full name" className="mt-2" />
+                        <Input 
+                          id="founder-name" 
+                          placeholder="Your full name" 
+                          className="mt-2"
+                          value={founderInfo.name}
+                          onChange={(e) => updateFounderInfo('name', e.target.value)}
+                        />
                       </div>
                       <div>
                         <Label htmlFor="founder-title">Title/Role</Label>
-                        <Input id="founder-title" placeholder="CEO, CTO, Founder..." className="mt-2" />
+                        <Input 
+                          id="founder-title" 
+                          placeholder="CEO, CTO, Founder..." 
+                          className="mt-2"
+                          value={founderInfo.title}
+                          onChange={(e) => updateFounderInfo('title', e.target.value)}
+                        />
                       </div>
                     </div>
                     <div>
@@ -542,6 +745,8 @@ export default function TeamPage() {
                         id="founder-background"
                         placeholder="Describe your relevant experience, skills, and achievements"
                         className="mt-2"
+                        value={founderInfo.background}
+                        onChange={(e) => updateFounderInfo('background', e.target.value)}
                       />
                     </div>
                     <div>
@@ -550,6 +755,8 @@ export default function TeamPage() {
                         id="founder-motivation"
                         placeholder="What drives you to solve this problem?"
                         className="mt-2"
+                        value={founderInfo.motivation}
+                        onChange={(e) => updateFounderInfo('motivation', e.target.value)}
                       />
                     </div>
                   </CardContent>
@@ -653,6 +860,247 @@ export default function TeamPage() {
                   </CardContent>
                 </Card>
               </motion.div>
+
+              {/* Advisors Section */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+              >
+                <Card className="vercel-card">
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <CardTitle className="flex items-center gap-2">
+                          <Star className="h-5 w-5 text-yellow-500" />
+                          Advisors
+                        </CardTitle>
+                        <CardDescription>Add industry advisors and experts to guide your startup</CardDescription>
+                      </div>
+                      <Button onClick={addAdvisor} size="sm" variant="outline">
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Advisor
+                      </Button>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    {advisors.map((advisor, index) => (
+                      <div key={advisor.id} className="border border-border rounded-lg p-4 space-y-4">
+                        <div className="flex items-center justify-between">
+                          <h4 className="font-medium">Advisor {index + 1}</h4>
+                          {advisors.length > 1 && (
+                            <Button
+                              onClick={() => removeAdvisor(advisor.id)}
+                              size="sm"
+                              variant="ghost"
+                              className="text-red-500 hover:text-red-700"
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <Label htmlFor={`advisor-name-${advisor.id}`}>Name</Label>
+                            <Input 
+                              id={`advisor-name-${advisor.id}`} 
+                              placeholder="Full name" 
+                              className="mt-2"
+                              value={advisor.name}
+                              onChange={(e) => updateAdvisor(advisor.id, 'name', e.target.value)}
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor={`advisor-role-${advisor.id}`}>Role/Title</Label>
+                            <Input 
+                              id={`advisor-role-${advisor.id}`} 
+                              placeholder="CEO, CTO, Industry Expert..." 
+                              className="mt-2"
+                              value={advisor.role}
+                              onChange={(e) => updateAdvisor(advisor.id, 'role', e.target.value)}
+                            />
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <Label htmlFor={`advisor-expertise-${advisor.id}`}>Expertise</Label>
+                            <Input 
+                              id={`advisor-expertise-${advisor.id}`} 
+                              placeholder="Technology, Business, Marketing..." 
+                              className="mt-2"
+                              value={advisor.expertise}
+                              onChange={(e) => updateAdvisor(advisor.id, 'expertise', e.target.value)}
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor={`advisor-company-${advisor.id}`}>Company</Label>
+                            <Input 
+                              id={`advisor-company-${advisor.id}`} 
+                              placeholder="Current company" 
+                              className="mt-2"
+                              value={advisor.company}
+                              onChange={(e) => updateAdvisor(advisor.id, 'company', e.target.value)}
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <Label htmlFor={`advisor-contact-${advisor.id}`}>Contact Information</Label>
+                          <Input 
+                            id={`advisor-contact-${advisor.id}`} 
+                            placeholder="Email, LinkedIn, Phone..." 
+                            className="mt-2"
+                            value={advisor.contact}
+                            onChange={(e) => updateAdvisor(advisor.id, 'contact', e.target.value)}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              {/* Mentors Section */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+              >
+                <Card className="vercel-card">
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <CardTitle className="flex items-center gap-2">
+                          <MessageCircle className="h-5 w-5 text-blue-500" />
+                          Mentors
+                        </CardTitle>
+                        <CardDescription>Add mentors who can provide guidance and support</CardDescription>
+                      </div>
+                      <Button onClick={addMentor} size="sm" variant="outline">
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Mentor
+                      </Button>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    {mentors.map((mentor, index) => (
+                      <div key={mentor.id} className="border border-border rounded-lg p-4 space-y-4">
+                        <div className="flex items-center justify-between">
+                          <h4 className="font-medium">Mentor {index + 1}</h4>
+                          {mentors.length > 1 && (
+                            <Button
+                              onClick={() => removeMentor(mentor.id)}
+                              size="sm"
+                              variant="ghost"
+                              className="text-red-500 hover:text-red-700"
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <Label htmlFor={`mentor-name-${mentor.id}`}>Name</Label>
+                            <Input 
+                              id={`mentor-name-${mentor.id}`} 
+                              placeholder="Full name" 
+                              className="mt-2"
+                              value={mentor.name}
+                              onChange={(e) => updateMentor(mentor.id, 'name', e.target.value)}
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor={`mentor-role-${mentor.id}`}>Role/Title</Label>
+                            <Input 
+                              id={`mentor-role-${mentor.id}`} 
+                              placeholder="Professor, Entrepreneur, Industry Leader..." 
+                              className="mt-2"
+                              value={mentor.role}
+                              onChange={(e) => updateMentor(mentor.id, 'role', e.target.value)}
+                            />
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <Label htmlFor={`mentor-expertise-${mentor.id}`}>Expertise</Label>
+                            <Input 
+                              id={`mentor-expertise-${mentor.id}`} 
+                              placeholder="Startup experience, Technical knowledge..." 
+                              className="mt-2"
+                              value={mentor.expertise}
+                              onChange={(e) => updateMentor(mentor.id, 'expertise', e.target.value)}
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor={`mentor-company-${mentor.id}`}>Company/Institution</Label>
+                            <Input 
+                              id={`mentor-company-${mentor.id}`} 
+                              placeholder="Current company or institution" 
+                              className="mt-2"
+                              value={mentor.company}
+                              onChange={(e) => updateMentor(mentor.id, 'company', e.target.value)}
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <Label htmlFor={`mentor-contact-${mentor.id}`}>Contact Information</Label>
+                          <Input 
+                            id={`mentor-contact-${mentor.id}`} 
+                            placeholder="Email, LinkedIn, Phone..." 
+                            className="mt-2"
+                            value={mentor.contact}
+                            onChange={(e) => updateMentor(mentor.id, 'contact', e.target.value)}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              {/* Complete Team Section */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.5 }}
+              >
+                <Card className="vercel-card bg-gradient-to-r from-green-500/10 to-blue-500/10 border-green-200">
+                  <CardContent className="py-8">
+                    <div className="text-center">
+                      <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                        <CheckCircle2 className="h-8 w-8 text-white" />
+                      </div>
+                      <h2 className="text-2xl font-bold text-foreground mb-4">
+                        Complete Your Team
+                      </h2>
+                      <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
+                        Once you've added all team members, advisors, and mentors, complete your team structure and download the comprehensive team document.
+                      </p>
+                      <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                        <Button 
+                          size="lg" 
+                          className="px-8 py-3"
+                          onClick={completeTeam}
+                          disabled={teamCompleted}
+                        >
+                          {teamCompleted ? 'Team Completed' : 'Complete Team'}
+                          <CheckCircle2 className="ml-2 h-5 w-5" />
+                        </Button>
+                        {teamCompleted && (
+                          <Button 
+                            size="lg" 
+                            variant="outline" 
+                            className="px-8 py-3"
+                            onClick={downloadTeamPDF}
+                          >
+                            Download Team Document
+                            <ArrowRight className="ml-2 h-5 w-5" />
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
             </TabsContent>
 
             {/* Find Co-Founders Tab */}
@@ -693,8 +1141,8 @@ export default function TeamPage() {
                       </Button>
                     </div>
                     {startupRequirements && (
-                      <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-                        <p className="text-sm text-blue-800">
+                      <div className="mt-4 p-3 bg-blue-500/10 dark:bg-blue-500/20 rounded-lg">
+                        <p className="text-sm text-blue-800 dark:text-blue-200">
                           <strong>Smart Matching:</strong> We're looking for cofounders with skills in: {' '}
                           {startupRequirements.skillsAnalysis.technical.slice(0, 3).join(', ')} and more
                         </p>

@@ -4,207 +4,304 @@ import { motion } from "framer-motion"
 import { Layout } from "@/components/layout"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
-import { Scale, FileText, Shield, AlertTriangle, CheckCircle, ArrowRight, Building, TrendingUp, DollarSign, Clock, Star, ExternalLink, Download } from "lucide-react"
-import { useState, useEffect } from "react"
+import { Building, CheckCircle, DollarSign, Download, ExternalLink, Star, Clock } from "lucide-react"
+import { useState } from "react"
 import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Progress } from "@/components/ui/progress"
 
 export default function LegalsPage() {
-  const [businessEntityAnalysis, setBusinessEntityAnalysis] = useState<any>(null)
-  const [providerPricing, setProviderPricing] = useState<any>(null)
-  const [loading, setLoading] = useState(false)
-  const [activeTab, setActiveTab] = useState('entity-analysis')
-  const [legalData, setLegalData] = useState({
-    businessType: '',
-    businessName: '',
-    stateIncorporation: 'Delaware',
-    businessAddress: '',
-    ein: '',
-    registrationDate: '',
-    businessLicense: '',
-    industryLicenses: '',
-    localPermits: '',
-    onlineBusiness: '',
-    trademarks: '',
-    copyrights: '',
-    patents: '',
-    tradeSecrets: '',
-    dataProtection: '',
-    industryRegulations: '',
-    employmentLaw: '',
-    taxObligations: '',
-    legalBudget: '',
-    attorneyContact: '',
-    priorityItems: '',
-    ongoingCompliance: ''
-  })
+  const [selectedProvider, setSelectedProvider] = useState<any>(null)
 
-  // Load business entity analysis when component mounts
-  useEffect(() => {
-    loadBusinessEntityAnalysis()
-  }, [])
-
-  // Function to load business entity analysis
-  const loadBusinessEntityAnalysis = async () => {
-    setLoading(true)
-    try {
-      const problemStatement = localStorage.getItem('problemStatement') || 
-        'AI-powered campus safety system to detect and prevent safety hazards using computer vision and IoT sensors'
-      
-      const response = await fetch('/api/analyze-business-entity', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          problemStatement,
-          businessModel: JSON.parse(localStorage.getItem('businessModel') || '{}'),
-          teamData: JSON.parse(localStorage.getItem('teamData') || '{}'),
-          targetMarket: localStorage.getItem('targetMarket') || 'College campuses in India',
-          industry: localStorage.getItem('industry') || 'EdTech/Safety Technology',
-          fundingPlans: localStorage.getItem('fundingPlans') || 'Seeking seed funding'
-        }),
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        setBusinessEntityAnalysis(data.businessEntityAnalysis)
-        setLegalData(prev => ({
-          ...prev,
-          businessType: data.businessEntityAnalysis.recommendedEntity.type,
-          stateIncorporation: data.businessEntityAnalysis.recommendedEntity.recommendedState
-        }))
-        
-        // Load provider pricing for the recommended entity type
-        loadProviderPricing(data.businessEntityAnalysis.recommendedEntity.type, data.businessEntityAnalysis.recommendedEntity.recommendedState)
-      }
-    } catch (error) {
-      console.error('Error loading business entity analysis:', error)
-    } finally {
-      setLoading(false)
+  // Provider data with real Indian incorporation services
+  const providers = [
+    {
+      id: 'vakilsearch',
+      name: 'Vakilsearch',
+      description: 'Leading legal services platform in India',
+      basicPlan: {
+        price: '₹7,499',
+        timeline: '7-10 business days',
+        rating: 4.5,
+        features: [
+          'LLP Registration',
+          'Digital Signature Certificate (DSC)',
+          'Director Identification Number (DIN)',
+          'PAN & TAN Registration',
+          'GST Registration',
+          'Bank Account Opening Support'
+        ]
+      },
+      premiumPlan: {
+        price: '₹12,999',
+        timeline: '5-7 business days',
+        rating: 4.6,
+        features: [
+          'Everything in Basic',
+          'Priority Processing',
+          'Legal Document Review',
+          'Compliance Support (3 months)',
+          'Business License Assistance',
+          'Annual Filing Support'
+        ]
+      },
+      website: 'https://vakilsearch.com',
+      pros: ['Comprehensive package', 'Good customer support', 'All-inclusive pricing'],
+      cons: ['Higher cost', 'Limited customization']
+    },
+    {
+      id: 'indiafilings',
+      name: 'IndiaFilings',
+      description: 'Professional incorporation services',
+      basicPlan: {
+        price: '₹6,999',
+        timeline: '8-12 business days',
+        rating: 4.3,
+        features: [
+          'Company Registration',
+          'DSC & DIN',
+          'PAN & TAN',
+          'GST Registration',
+          'Bank Account Support'
+        ]
+      },
+      premiumPlan: {
+        price: '₹11,999',
+        timeline: '6-8 business days',
+        rating: 4.4,
+        features: [
+          'Everything in Basic',
+          'Priority Support',
+          'Legal Compliance',
+          'Annual Filing',
+          'Business License'
+        ]
+      },
+      website: 'https://indiafilings.com',
+      pros: ['Competitive pricing', 'Good support', 'Quick processing'],
+      cons: ['Limited features in basic plan']
+    },
+    {
+      id: 'cleartax',
+      name: 'ClearTax',
+      description: 'Tax and compliance platform',
+      basicPlan: {
+        price: '₹8,999',
+        timeline: '10-15 business days',
+        rating: 4.2,
+        features: [
+          'Company Registration',
+          'DSC & DIN',
+          'PAN & TAN',
+          'GST Registration',
+          'Tax Compliance'
+        ]
+      },
+      premiumPlan: {
+        price: '₹14,999',
+        timeline: '7-10 business days',
+        rating: 4.3,
+        features: [
+          'Everything in Basic',
+          'Priority Processing',
+          'Tax Filing Support',
+          'Compliance Monitoring',
+          'Annual Returns'
+        ]
+      },
+      website: 'https://cleartax.in',
+      pros: ['Tax expertise', 'Compliance focus', 'Good reputation'],
+      cons: ['Higher pricing', 'Slower processing']
+    },
+    {
+      id: 'legalraasta',
+      name: 'LegalRaasta',
+      description: 'Legal services and compliance',
+      basicPlan: {
+        price: '₹5,999',
+        timeline: '12-15 business days',
+        rating: 4.1,
+        features: [
+          'Company Registration',
+          'DSC & DIN',
+          'PAN & TAN',
+          'Basic Compliance'
+        ]
+      },
+      premiumPlan: {
+        price: '₹9,999',
+        timeline: '8-12 business days',
+        rating: 4.2,
+        features: [
+          'Everything in Basic',
+          'Priority Support',
+          'Legal Documentation',
+          'Compliance Support'
+        ]
+      },
+      website: 'https://legalraasta.com',
+      pros: ['Lowest pricing', 'Basic compliance', 'Simple process'],
+      cons: ['Slower processing', 'Limited support']
+    },
+    {
+      id: 'razorpay',
+      name: 'Razorpay',
+      description: 'Payment gateway with business services',
+      basicPlan: {
+        price: '₹9,999',
+        timeline: '5-7 business days',
+        rating: 4.7,
+        features: [
+          'Company Registration',
+          'DSC & DIN',
+          'PAN & TAN',
+          'GST Registration',
+          'Payment Gateway Setup',
+          'Bank Account Integration'
+        ]
+      },
+      premiumPlan: {
+        price: '₹19,999',
+        timeline: '3-5 business days',
+        rating: 4.8,
+        features: [
+          'Everything in Basic',
+          'Priority Processing',
+          'Payment Solutions',
+          'Business Banking',
+          'Compliance Support',
+          'API Integration'
+        ]
+      },
+      website: 'https://razorpay.com',
+      pros: ['Fast processing', 'Payment integration', 'Excellent support'],
+      cons: ['Higher cost', 'Tech-focused']
+    },
+    {
+      id: 'myonlineca',
+      name: 'MyOnlineCA',
+      description: 'Chartered Accountant services',
+      basicPlan: {
+        price: '₹6,500',
+        timeline: '10-12 business days',
+        rating: 4.0,
+        features: [
+          'Company Registration',
+          'DSC & DIN',
+          'PAN & TAN',
+          'GST Registration',
+          'CA Support'
+        ]
+      },
+      premiumPlan: {
+        price: '₹12,500',
+        timeline: '7-10 business days',
+        rating: 4.1,
+        features: [
+          'Everything in Basic',
+          'CA Consultation',
+          'Tax Planning',
+          'Annual Compliance',
+          'Audit Support'
+        ]
+      },
+      website: 'https://myonlineca.in',
+      pros: ['CA expertise', 'Tax planning', 'Reasonable pricing'],
+      cons: ['Slower processing', 'Limited tech features']
     }
-  }
+  ]
 
-  // Function to load provider pricing
-  const loadProviderPricing = async (entityType: string, state: string) => {
-    try {
-      const response = await fetch('/api/get-provider-pricing', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          entityType,
-          state
-        }),
-      })
+  // Function to download PDF with selected provider
+  const downloadProviderPDF = () => {
+    if (!selectedProvider) return
 
-      if (response.ok) {
-        const data = await response.json()
-        setProviderPricing(data)
-      }
-    } catch (error) {
-      console.error('Error loading provider pricing:', error)
-    }
-  }
-
-  // Function to generate legal document
-  const generateLegalDocument = () => {
-    if (!businessEntityAnalysis) return
+    const problemStatement = localStorage.getItem('problemStatement') || ''
+    const currentDate = new Date().toLocaleDateString()
+    const currentTime = new Date().toLocaleTimeString()
 
     const documentContent = `
-# Legal Requirements Document
+BUSINESS INCORPORATION SERVICE SELECTION
+${problemStatement.toUpperCase()}
 
-## Business Entity Analysis
-**Recommended Entity Type:** ${businessEntityAnalysis?.recommendedEntity?.type || 'Loading...'}
-**Reasoning:** ${businessEntityAnalysis?.recommendedEntity?.reasoning || 'Loading...'}
-**Recommended State:** ${businessEntityAnalysis?.recommendedEntity?.recommendedState || 'Loading...'}
+Generated on: ${currentDate} at ${currentTime}
+Document Version: 1.0
 
-### Benefits
-${businessEntityAnalysis?.recommendedEntity?.benefits?.map((benefit: string) => `- ${benefit}`).join('\n') || 'Loading benefits...'}
+================================================================================
+SELECTED INCORPORATION SERVICE
+================================================================================
 
-### Drawbacks
-${businessEntityAnalysis?.recommendedEntity?.drawbacks?.map((drawback: string) => `- ${drawback}`).join('\n') || 'Loading drawbacks...'}
+Provider: ${selectedProvider.name}
+Description: ${selectedProvider.description}
+Website: ${selectedProvider.website}
 
-## Entity Comparison
-### LLP (Limited Liability Partnership)
-**Description:** ${businessEntityAnalysis?.entityComparison?.llp?.description || 'Loading...'}
-**Pros:** ${businessEntityAnalysis?.entityComparison?.llp?.pros?.join(', ') || 'Loading...'}
-**Cons:** ${businessEntityAnalysis?.entityComparison?.llp?.cons?.join(', ') || 'Loading...'}
-**Tax Treatment:** ${businessEntityAnalysis?.entityComparison?.llp?.taxTreatment || 'Loading...'}
+Selected Plan: ${selectedProvider.selectedPlan === 'basic' ? 'Basic Plan' : 'Premium Plan'}
+Price: ${selectedProvider.selectedPlan === 'basic' ? selectedProvider.basicPlan.price : selectedProvider.premiumPlan.price}
+Timeline: ${selectedProvider.selectedPlan === 'basic' ? selectedProvider.basicPlan.timeline : selectedProvider.premiumPlan.timeline}
+Rating: ${selectedProvider.selectedPlan === 'basic' ? selectedProvider.basicPlan.rating : selectedProvider.premiumPlan.rating}/5
 
-### Private Limited Company
-**Description:** ${businessEntityAnalysis?.entityComparison?.['private-limited']?.description || 'Loading...'}
-**Pros:** ${businessEntityAnalysis?.entityComparison?.['private-limited']?.pros?.join(', ') || 'Loading...'}
-**Cons:** ${businessEntityAnalysis?.entityComparison?.['private-limited']?.cons?.join(', ') || 'Loading...'}
-**Tax Treatment:** ${businessEntityAnalysis?.entityComparison?.['private-limited']?.taxTreatment || 'Loading...'}
+================================================================================
+SERVICE FEATURES
+================================================================================
 
-## Incorporation Requirements
-### Required Documents
-${businessEntityAnalysis?.incorporationRequirements?.requiredDocuments?.map((doc: string) => `- ${doc}`).join('\n') || 'Loading documents...'}
+${selectedProvider.selectedPlan === 'basic' ? selectedProvider.basicPlan.features.map((feature: string, index: number) => `${index + 1}. ${feature}`).join('\n') : selectedProvider.premiumPlan.features.map((feature: string, index: number) => `${index + 1}. ${feature}`).join('\n')}
 
-### Filing Requirements
-${businessEntityAnalysis?.incorporationRequirements?.filingRequirements?.map((req: string) => `- ${req}`).join('\n') || 'Loading requirements...'}
+================================================================================
+PROVIDER COMPARISON
+================================================================================
 
-**Estimated Timeline:** ${businessEntityAnalysis?.incorporationRequirements?.estimatedTimeline || 'Loading...'}
+Advantages:
+${selectedProvider.pros.map((pro: string, index: number) => `${index + 1}. ${pro}`).join('\n')}
 
-## Cost Analysis
-### Incorporation Costs by State
-${businessEntityAnalysis?.costAnalysis?.incorporationCosts ? Object.entries(businessEntityAnalysis.costAnalysis.incorporationCosts).map(([state, cost]) => `- ${state}: ${cost}`).join('\n') : 'Loading costs...'}
+Disadvantages:
+${selectedProvider.cons.map((con: string, index: number) => `${index + 1}. ${con}`).join('\n')}
 
-### Ongoing Costs
-- Annual Fees: ${businessEntityAnalysis?.costAnalysis?.ongoingCosts?.annualFees || 'Loading...'}
-- Registered Agent: ${businessEntityAnalysis?.costAnalysis?.ongoingCosts?.registeredAgent || 'Loading...'}
-- Compliance Costs: ${businessEntityAnalysis?.costAnalysis?.ongoingCosts?.complianceCosts || 'Loading...'}
+================================================================================
+ALTERNATIVE OPTIONS
+================================================================================
 
-### Professional Services
-- Attorney Fees: ${businessEntityAnalysis?.costAnalysis?.professionalServices?.attorneyFees || 'Loading...'}
-- Accountant Fees: ${businessEntityAnalysis?.costAnalysis?.professionalServices?.accountantFees || 'Loading...'}
-- Registered Agent: ${businessEntityAnalysis?.costAnalysis?.professionalServices?.registeredAgent || 'Loading...'}
+${providers.filter(p => p.id !== selectedProvider.id).map(provider => `
+${provider.name}:
+- Basic Plan: ${provider.basicPlan.price} (${provider.basicPlan.timeline})
+- Premium Plan: ${provider.premiumPlan.price} (${provider.premiumPlan.timeline})
+- Rating: ${provider.basicPlan.rating}/5
+- Website: ${provider.website}
+`).join('\n')}
 
-## Provider Recommendations
-${providerPricing ? `
-### Cheapest Option
-**Provider:** ${providerPricing?.comparison?.cheapest?.name || 'Loading...'}
-**Price:** ${providerPricing?.comparison?.cheapest?.basicPlan?.price || 'Loading...'}
-**Timeline:** ${providerPricing?.comparison?.cheapest?.basicPlan?.timeline || 'Loading...'}
+================================================================================
+NEXT STEPS
+================================================================================
 
-### Most Popular
-**Provider:** ${providerPricing?.comparison?.mostPopular?.name || 'Loading...'}
-**Price:** ${providerPricing?.comparison?.mostPopular?.basicPlan?.price || 'Loading...'}
-**Rating:** ${providerPricing?.comparison?.mostPopular?.basicPlan?.rating || 'Loading...'}/5
+1. Visit the provider website: ${selectedProvider.website}
+2. Contact the provider for detailed consultation
+3. Review the service terms and conditions
+4. Proceed with the selected plan
+5. Complete the incorporation process
+6. Follow up on compliance requirements
 
-### Fastest Processing
-**Provider:** ${providerPricing?.comparison?.fastest?.name || 'Loading...'}
-**Price:** ${providerPricing?.comparison?.fastest?.basicPlan?.price || 'Loading...'}
-**Timeline:** ${providerPricing?.comparison?.fastest?.basicPlan?.timeline || 'Loading...'}
-` : ''}
+================================================================================
+DOCUMENT SUMMARY
+================================================================================
 
-## Legal Checklist
-- [ ] Choose business entity type
-- [ ] Select state of incorporation
-- [ ] File articles of incorporation/organization
-- [ ] Obtain EIN
-- [ ] Create operating agreement/bylaws
-- [ ] Appoint registered agent
-- [ ] Obtain business license
-- [ ] Register for taxes
-- [ ] Set up business bank account
-- [ ] Obtain necessary permits
+Selected Provider: ${selectedProvider.name}
+Selected Plan: ${selectedProvider.selectedPlan === 'basic' ? 'Basic Plan' : 'Premium Plan'}
+Total Cost: ${selectedProvider.selectedPlan === 'basic' ? selectedProvider.basicPlan.price : selectedProvider.premiumPlan.price}
+Processing Time: ${selectedProvider.selectedPlan === 'basic' ? selectedProvider.basicPlan.timeline : selectedProvider.premiumPlan.timeline}
+Provider Rating: ${selectedProvider.selectedPlan === 'basic' ? selectedProvider.basicPlan.rating : selectedProvider.premiumPlan.rating}/5
+
+Document Generated: ${currentDate} at ${currentTime}
+Generated by: BuildIt AI Platform
+Problem Statement: ${problemStatement.substring(0, 100)}${problemStatement.length > 100 ? '...' : ''}
 
 ---
-*Generated on ${new Date().toLocaleDateString()}*
+This service selection was made for your startup: "${problemStatement.substring(0, 50)}${problemStatement.length > 50 ? '...' : ''}"
+and provides a comprehensive comparison of incorporation service providers.
+
+For questions or support, please refer to the BuildIt AI Platform documentation.
     `
 
-    const blob = new Blob([documentContent], { type: 'text/markdown' })
+    const blob = new Blob([documentContent], { type: 'text/plain;charset=utf-8' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `Legal_Requirements_${new Date().toISOString().split('T')[0]}.md`
+    a.download = `Incorporation_Service_${selectedProvider.name}_${new Date().toISOString().split('T')[0]}.txt`
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)
@@ -214,7 +311,7 @@ ${providerPricing ? `
   return (
     <Layout>
       <div className="py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -222,918 +319,256 @@ ${providerPricing ? `
             transition={{ duration: 0.5 }}
             className="text-center mb-12"
           >
-            <div className="w-16 h-16 bg-gradient-to-r from-indigo-500 to-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
-              <Scale className="h-8 w-8 text-white" />
+            <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
+              <Building className="h-8 w-8 text-white" />
             </div>
-            <h1 className="text-4xl font-bold text-foreground mb-4">Legal Requirements</h1>
+            <h1 className="text-4xl font-bold text-foreground mb-4">Business Incorporation Services</h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Ensure your business is legally compliant and protected from the start
+              Choose the best incorporation service provider for your startup. Compare pricing, features, and timelines.
             </p>
           </motion.div>
 
-          {/* Main Content Tabs */}
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="entity-analysis">Entity Analysis</TabsTrigger>
-              <TabsTrigger value="provider-pricing">Provider Pricing</TabsTrigger>
-              <TabsTrigger value="legal-requirements">Legal Requirements</TabsTrigger>
-              <TabsTrigger value="legal-document">Legal Document</TabsTrigger>
-            </TabsList>
-
-            {/* Entity Analysis Tab */}
-            <TabsContent value="entity-analysis" className="space-y-6">
-              {/* Business Entity Analysis */}
+          {/* Provider Selection */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.1 }}
+            className="mb-8"
               >
                 <Card className="vercel-card">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <Building className="h-5 w-5 text-blue-500" />
-                      Business Entity Analysis
+                  Select Incorporation Service Provider
                     </CardTitle>
                     <CardDescription>
-                      AI-powered analysis of your startup to recommend the best business entity type
+                  Choose from leading Indian incorporation service providers
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-6">
-                    {loading ? (
-                      <div className="text-center py-8">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
-                        <p className="mt-2 text-muted-foreground">Analyzing your startup...</p>
-                      </div>
-                    ) : businessEntityAnalysis ? (
-                      <div className="space-y-6">
-                        {/* Recommended Entity */}
-                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-                          <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {providers.map((provider) => (
+                    <div
+                      key={provider.id}
+                      className={`border-2 rounded-lg p-6 cursor-pointer transition-all duration-200 ${
+                        selectedProvider?.id === provider.id
+                          ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                          : 'border-border hover:border-blue-300'
+                      }`}
+                      onClick={() => setSelectedProvider(provider)}
+                    >
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="font-semibold text-lg">{provider.name}</h3>
+                        {selectedProvider?.id === provider.id && (
                             <CheckCircle className="h-5 w-5 text-blue-600" />
-                            Recommended Entity Type
-                          </h3>
-                          <div className="space-y-4">
-                            <div>
-                              <h4 className="font-medium text-lg">{businessEntityAnalysis?.recommendedEntity?.type || 'Loading...'}</h4>
-                              <p className="text-sm text-muted-foreground mt-1">{businessEntityAnalysis?.recommendedEntity?.reasoning || 'Loading reasoning...'}</p>
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              <div>
-                                <h5 className="font-medium mb-2">Benefits</h5>
-                                <ul className="space-y-1 text-sm">
-                                  {businessEntityAnalysis?.recommendedEntity?.benefits?.map((benefit: string, index: number) => (
-                                    <li key={index} className="flex items-start gap-2">
-                                      <span className="text-green-500 mt-1">•</span>
-                                      <span>{benefit}</span>
-                                    </li>
-                                  )) || <li className="text-gray-500">Loading benefits...</li>}
-                                </ul>
-                              </div>
-                              <div>
-                                <h5 className="font-medium mb-2">Drawbacks</h5>
-                                <ul className="space-y-1 text-sm">
-                                  {businessEntityAnalysis?.recommendedEntity?.drawbacks?.map((drawback: string, index: number) => (
-                                    <li key={index} className="flex items-start gap-2">
-                                      <span className="text-red-500 mt-1">•</span>
-                                      <span>{drawback}</span>
-                                    </li>
-                                  )) || <li className="text-gray-500">Loading drawbacks...</li>}
-                                </ul>
+                        )}
+                        </div>
+
+                      <p className="text-sm text-muted-foreground mb-4">{provider.description}</p>
+                      
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm font-medium">Basic Plan:</span>
+                          <span className="font-bold text-green-600">{provider.basicPlan.price}</span>
+                                </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm font-medium">Premium Plan:</span>
+                          <span className="font-bold text-blue-600">{provider.premiumPlan.price}</span>
+                                </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm font-medium">Rating:</span>
+                          <div className="flex items-center gap-1">
+                            <Star className="h-4 w-4 text-yellow-500 fill-current" />
+                            <span className="text-sm">{provider.basicPlan.rating}/5</span>
                               </div>
                             </div>
-                            <div className="flex flex-wrap gap-2">
-                              <Badge variant="outline">Recommended State: {businessEntityAnalysis?.recommendedEntity?.recommendedState || 'Loading...'}</Badge>
-                              <Badge variant="outline">Best States: {businessEntityAnalysis?.recommendedEntity?.bestStates?.join(', ') || 'Loading...'}</Badge>
-                            </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm font-medium">Timeline:</span>
+                          <span className="text-sm">{provider.basicPlan.timeline}</span>
                           </div>
                         </div>
 
-                        {/* Entity Comparison */}
-                        <div className="space-y-4">
-                          <h3 className="text-lg font-semibold">Entity Type Comparison</h3>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {/* LLP */}
-                            <div className="border border-border rounded-lg p-4">
-                              <h4 className="font-semibold mb-2">LLP</h4>
-                              <p className="text-sm text-muted-foreground mb-3">{businessEntityAnalysis.entityComparison.llp.description}</p>
-                              <div className="space-y-2">
-                                <div>
-                                  <h5 className="font-medium text-sm">Pros:</h5>
-                                  <ul className="text-xs space-y-1">
-                                    {businessEntityAnalysis.entityComparison.llp.pros.map((pro: string, index: number) => (
-                                      <li key={index} className="flex items-start gap-1">
-                                        <span className="text-green-500 mt-1">•</span>
-                                        <span>{pro}</span>
-                                      </li>
-                                    ))}
-                                  </ul>
-                                </div>
-                                <div>
-                                  <h5 className="font-medium text-sm">Cons:</h5>
-                                  <ul className="text-xs space-y-1">
-                                    {businessEntityAnalysis.entityComparison.llp.cons.map((con: string, index: number) => (
-                                      <li key={index} className="flex items-start gap-1">
-                                        <span className="text-red-500 mt-1">•</span>
-                                        <span>{con}</span>
-                                      </li>
-                                    ))}
-                                  </ul>
-                                </div>
-                              </div>
+                      <div className="mt-4 pt-4 border-t">
+                        <a
+                          href={provider.website}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:text-blue-800 text-sm flex items-center gap-1"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          Visit Website
+                          <ExternalLink className="h-3 w-3" />
+                        </a>
                             </div>
-
-                            {/* Private Limited Company */}
-                            <div className="border border-border rounded-lg p-4">
-                              <h4 className="font-semibold mb-2">Private Limited Company</h4>
-                              <p className="text-sm text-muted-foreground mb-3">{businessEntityAnalysis.entityComparison['private-limited'].description}</p>
-                              <div className="space-y-2">
-                                <div>
-                                  <h5 className="font-medium text-sm">Pros:</h5>
-                                  <ul className="text-xs space-y-1">
-                                    {businessEntityAnalysis.entityComparison['private-limited'].pros.map((pro: string, index: number) => (
-                                      <li key={index} className="flex items-start gap-1">
-                                        <span className="text-green-500 mt-1">•</span>
-                                        <span>{pro}</span>
-                                      </li>
-                                    ))}
-                                  </ul>
-                                </div>
-                                <div>
-                                  <h5 className="font-medium text-sm">Cons:</h5>
-                                  <ul className="text-xs space-y-1">
-                                    {businessEntityAnalysis.entityComparison['private-limited'].cons.map((con: string, index: number) => (
-                                      <li key={index} className="flex items-start gap-1">
-                                        <span className="text-red-500 mt-1">•</span>
-                                        <span>{con}</span>
-                                      </li>
-                                    ))}
-                                  </ul>
-                                </div>
-                              </div>
                             </div>
+                  ))}
                           </div>
-                        </div>
-
-                        {/* Incorporation Requirements */}
-                        <div className="border border-border rounded-lg p-6">
-                          <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                            <FileText className="h-5 w-5 text-green-600" />
-                            Incorporation Requirements
-                          </h3>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                              <h4 className="font-medium mb-2">Required Documents</h4>
-                              <ul className="space-y-1 text-sm">
-                                {businessEntityAnalysis?.incorporationRequirements?.requiredDocuments?.map((doc: string, index: number) => (
-                                  <li key={index} className="flex items-start gap-2">
-                                    <span className="text-blue-500 mt-1">•</span>
-                                    <span>{doc}</span>
-                                  </li>
-                                )) || <li className="text-gray-500">Loading documents...</li>}
-                              </ul>
-                            </div>
-                            <div>
-                              <h4 className="font-medium mb-2">Filing Requirements</h4>
-                              <ul className="space-y-1 text-sm">
-                                {businessEntityAnalysis?.incorporationRequirements?.filingRequirements?.map((req: string, index: number) => (
-                                  <li key={index} className="flex items-start gap-2">
-                                    <span className="text-green-500 mt-1">•</span>
-                                    <span>{req}</span>
-                                  </li>
-                                )) || <li className="text-gray-500">Loading requirements...</li>}
-                              </ul>
-                            </div>
-                          </div>
-                          <div className="mt-4">
-                            <Badge variant="outline">Timeline: {businessEntityAnalysis?.incorporationRequirements?.estimatedTimeline || 'Loading...'}</Badge>
-                          </div>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="text-center py-8">
-                        <Building className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                        <h3 className="text-lg font-semibold mb-2">No entity analysis available</h3>
-                        <p className="text-muted-foreground mb-4">
-                          Complete your startup planning to get personalized entity recommendations
-                        </p>
-                        <Button onClick={loadBusinessEntityAnalysis} disabled={loading}>
-                          Analyze Business Entity
-                        </Button>
-                      </div>
-                    )}
                   </CardContent>
                 </Card>
               </motion.div>
-            </TabsContent>
 
-            {/* Provider Pricing Tab */}
-            <TabsContent value="provider-pricing" className="space-y-6">
+          {/* Selected Provider Details */}
+          {selectedProvider && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.1 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="mb-8"
               >
                 <Card className="vercel-card">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                      <DollarSign className="h-5 w-5 text-green-500" />
-                      Provider Pricing Comparison
+                    <CheckCircle className="h-5 w-5 text-green-500" />
+                    Selected Provider: {selectedProvider.name}
                     </CardTitle>
                     <CardDescription>
-                      Compare pricing from different company registration providers
+                    Choose your plan and get detailed information
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-6">
-                    {providerPricing ? (
-                      <div className="space-y-6">
-                        {/* Quick Comparison */}
-                        <div className="bg-green-50 border border-green-200 rounded-lg p-6">
-                          <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                            <TrendingUp className="h-5 w-5 text-green-600" />
-                            Quick Comparison
-                          </h3>
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div className="text-center">
-                              <h4 className="font-medium text-sm text-green-600">Cheapest</h4>
-                              <p className="text-lg font-semibold">{providerPricing?.comparison?.cheapest?.name || 'Loading...'}</p>
-                              <p className="text-sm text-muted-foreground">{providerPricing?.comparison?.cheapest?.basicPlan?.price || 'Loading...'}</p>
-                            </div>
-                            <div className="text-center">
-                              <h4 className="font-medium text-sm text-blue-600">Most Popular</h4>
-                              <p className="text-lg font-semibold">{providerPricing?.comparison?.mostPopular?.name || 'Loading...'}</p>
-                              <p className="text-sm text-muted-foreground">{providerPricing?.comparison?.mostPopular?.basicPlan?.price || 'Loading...'}</p>
-                            </div>
-                            <div className="text-center">
-                              <h4 className="font-medium text-sm text-orange-600">Fastest</h4>
-                              <p className="text-lg font-semibold">{providerPricing?.comparison?.fastest?.name || 'Loading...'}</p>
-                              <p className="text-sm text-muted-foreground">{providerPricing?.comparison?.fastest?.basicPlan?.timeline || 'Loading...'}</p>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Provider Details */}
-                        <div className="space-y-4">
-                          <h3 className="text-lg font-semibold">Provider Details</h3>
-                          {providerPricing?.providers?.map((provider: any, index: number) => (
-                            <div key={index} className="border border-border rounded-lg p-6">
-                              <div className="flex items-center justify-between mb-4">
-                                <div>
-                                  <h4 className="text-lg font-semibold">{provider.name}</h4>
-                                  <p className="text-sm text-muted-foreground">{provider.description}</p>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <div className="flex items-center gap-1">
-                                    <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                                    <span className="text-sm">{provider.basicPlan.rating}</span>
-                                  </div>
-                                  <Button size="sm" variant="outline">
-                                    <ExternalLink className="h-3 w-3 mr-1" />
-                                    Visit
-                                  </Button>
-                                </div>
-                              </div>
-                              
+                  {/* Plan Selection */}
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {/* Basic Plan */}
-                                <div className="border border-border rounded-lg p-4">
-                                  <div className="flex items-center justify-between mb-3">
-                                    <h5 className="font-medium">Basic Plan</h5>
-                                    <span className="text-lg font-semibold text-green-600">{provider.basicPlan.price}</span>
+                    <div
+                      className={`border-2 rounded-lg p-6 cursor-pointer transition-all duration-200 ${
+                        selectedProvider.selectedPlan === 'basic'
+                          ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
+                          : 'border-border hover:border-green-300'
+                      }`}
+                      onClick={() => setSelectedProvider({ ...selectedProvider, selectedPlan: 'basic' })}
+                    >
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="font-semibold text-lg">Basic Plan</h3>
+                        {selectedProvider.selectedPlan === 'basic' && (
+                          <CheckCircle className="h-5 w-5 text-green-600" />
+                        )}
                                   </div>
-                                  <div className="space-y-2">
-                                    <div className="flex items-center gap-2 text-sm">
-                                      <Clock className="h-3 w-3 text-muted-foreground" />
-                                      <span>{provider.basicPlan.timeline}</span>
+                      <div className="text-3xl font-bold text-green-600 mb-2">{selectedProvider.basicPlan.price}</div>
+                      <div className="flex items-center gap-2 mb-4">
+                        <Clock className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm text-muted-foreground">{selectedProvider.basicPlan.timeline}</span>
                                     </div>
-                                    <div>
-                                      <h6 className="font-medium text-sm mb-2">Features:</h6>
-                                      <ul className="space-y-1 text-xs">
-                                        {provider.basicPlan.features.map((feature: string, idx: number) => (
-                                          <li key={idx} className="flex items-start gap-2">
-                                            <CheckCircle className="h-3 w-3 text-green-500 mt-0.5 flex-shrink-0" />
+                      <div className="flex items-center gap-2 mb-4">
+                        <Star className="h-4 w-4 text-yellow-500 fill-current" />
+                        <span className="text-sm">{selectedProvider.basicPlan.rating}/5</span>
+                      </div>
+                      <ul className="space-y-2 text-sm">
+                        {selectedProvider.basicPlan.features.map((feature: string, index: number) => (
+                          <li key={index} className="flex items-start gap-2">
+                            <span className="text-green-500 mt-1">•</span>
                                             <span>{feature}</span>
                                           </li>
                                         ))}
                                       </ul>
-                                    </div>
-                                  </div>
                                 </div>
 
                                 {/* Premium Plan */}
-                                {provider.premiumPlan && (
-                                  <div className="border border-border rounded-lg p-4">
-                                    <div className="flex items-center justify-between mb-3">
-                                      <h5 className="font-medium">Premium Plan</h5>
-                                      <span className="text-lg font-semibold text-blue-600">{provider.premiumPlan.price}</span>
+                    <div
+                      className={`border-2 rounded-lg p-6 cursor-pointer transition-all duration-200 ${
+                        selectedProvider.selectedPlan === 'premium'
+                          ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                          : 'border-border hover:border-blue-300'
+                      }`}
+                      onClick={() => setSelectedProvider({ ...selectedProvider, selectedPlan: 'premium' })}
+                    >
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="font-semibold text-lg">Premium Plan</h3>
+                        {selectedProvider.selectedPlan === 'premium' && (
+                          <CheckCircle className="h-5 w-5 text-blue-600" />
+                        )}
                                     </div>
-                                    <div className="space-y-2">
-                                      <div className="flex items-center gap-2 text-sm">
-                                        <Clock className="h-3 w-3 text-muted-foreground" />
-                                        <span>{provider.premiumPlan.timeline}</span>
+                      <div className="text-3xl font-bold text-blue-600 mb-2">{selectedProvider.premiumPlan.price}</div>
+                      <div className="flex items-center gap-2 mb-4">
+                        <Clock className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm text-muted-foreground">{selectedProvider.premiumPlan.timeline}</span>
                                       </div>
-                                      <div>
-                                        <h6 className="font-medium text-sm mb-2">Features:</h6>
-                                        <ul className="space-y-1 text-xs">
-                                          {provider.premiumPlan.features.map((feature: string, idx: number) => (
-                                            <li key={idx} className="flex items-start gap-2">
-                                              <CheckCircle className="h-3 w-3 text-blue-500 mt-0.5 flex-shrink-0" />
+                      <div className="flex items-center gap-2 mb-4">
+                        <Star className="h-4 w-4 text-yellow-500 fill-current" />
+                        <span className="text-sm">{selectedProvider.premiumPlan.rating}/5</span>
+                      </div>
+                      <ul className="space-y-2 text-sm">
+                        {selectedProvider.premiumPlan.features.map((feature: string, index: number) => (
+                          <li key={index} className="flex items-start gap-2">
+                            <span className="text-blue-500 mt-1">•</span>
                                               <span>{feature}</span>
                                             </li>
                                           ))}
                                         </ul>
                                       </div>
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          ))}
                         </div>
 
-                        {/* Additional Costs */}
-                        <div className="border border-border rounded-lg p-6">
-                          <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                            <AlertTriangle className="h-5 w-5 text-orange-600" />
-                            Additional Costs
-                          </h3>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Pros and Cons */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                              <h4 className="font-medium mb-2">State Filing Fees</h4>
-                              <ul className="space-y-1 text-sm">
-                                {providerPricing?.additionalCosts?.stateFilingFees ? Object.entries(providerPricing.additionalCosts.stateFilingFees).map(([state, cost]) => (
-                                  <li key={state} className="flex justify-between">
-                                    <span>{state}:</span>
-                                    <span className="font-medium">{cost as string}</span>
+                      <h4 className="font-semibold mb-3 text-green-600">Advantages</h4>
+                      <ul className="space-y-2">
+                        {selectedProvider.pros.map((pro: string, index: number) => (
+                          <li key={index} className="flex items-start gap-2">
+                            <span className="text-green-500 mt-1">•</span>
+                            <span className="text-sm">{pro}</span>
                                   </li>
-                                )) : <li className="text-gray-500">Loading costs...</li>}
+                        ))}
                               </ul>
                             </div>
                             <div>
-                              <h4 className="font-medium mb-2">Other Costs</h4>
-                              <ul className="space-y-1 text-sm">
-                                <li className="flex justify-between">
-                                  <span>Registered Agent:</span>
-                                  <span className="font-medium">{providerPricing?.additionalCosts?.registeredAgent || 'Loading...'}</span>
+                      <h4 className="font-semibold mb-3 text-red-600">Disadvantages</h4>
+                      <ul className="space-y-2">
+                        {selectedProvider.cons.map((con: string, index: number) => (
+                          <li key={index} className="flex items-start gap-2">
+                            <span className="text-red-500 mt-1">•</span>
+                            <span className="text-sm">{con}</span>
                                 </li>
-                                <li className="flex justify-between">
-                                  <span>Business License:</span>
-                                  <span className="font-medium">{providerPricing?.additionalCosts?.businessLicense || 'Loading...'}</span>
-                                </li>
-                                <li className="flex justify-between">
-                                  <span>EIN:</span>
-                                  <span className="font-medium">{providerPricing?.additionalCosts?.ein || 'Loading...'}</span>
-                                </li>
+                        ))}
                               </ul>
                             </div>
                           </div>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="text-center py-8">
-                        <DollarSign className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                        <h3 className="text-lg font-semibold mb-2">No pricing data available</h3>
-                        <p className="text-muted-foreground mb-4">
-                          Complete entity analysis to view provider pricing
-                        </p>
-                      </div>
-                    )}
                   </CardContent>
                 </Card>
               </motion.div>
-            </TabsContent>
+          )}
 
-            {/* Legal Requirements Tab */}
-            <TabsContent value="legal-requirements" className="space-y-6">
-              {/* Business Structure */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="mb-12"
-          >
-            <Card className="vercel-card">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Building className="h-5 w-5 text-blue-500" />
-                  Business Structure
-                </CardTitle>
-                <CardDescription>Choose the right legal structure for your business</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div>
-                  <Label htmlFor="business-type">Business entity type</Label>
-                  <select
-                    id="business-type"
-                    className="mt-2 w-full px-3 py-2 border border-border rounded-md bg-background text-foreground"
-                    value={legalData.businessType}
-                    onChange={(e) => setLegalData({...legalData, businessType: e.target.value})}
-                  >
-                    <option value="">Select entity type</option>
-                    <option value="llp">LLP (Limited Liability Partnership)</option>
-                    <option value="private-limited">Private Limited Company</option>
-                    <option value="one-person-company">One Person Company (OPC)</option>
-                    <option value="partnership">Partnership Firm</option>
-                    <option value="sole-proprietorship">Sole Proprietorship</option>
-                  </select>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="business-name">Legal business name</Label>
-                    <Input 
-                      id="business-name" 
-                      placeholder="Your Company Pvt Ltd" 
-                      className="mt-2"
-                      value={legalData.businessName}
-                      onChange={(e) => setLegalData({...legalData, businessName: e.target.value})}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="state-incorporation">State of incorporation</Label>
-                    <select
-                      id="state-incorporation"
-                      className="mt-2 w-full px-3 py-2 border border-border rounded-md bg-background text-foreground"
-                      value={legalData.stateIncorporation}
-                      onChange={(e) => setLegalData({...legalData, stateIncorporation: e.target.value})}
-                    >
-                      <option value="">Select state</option>
-                      <option value="delhi">Delhi</option>
-                      <option value="mumbai">Mumbai (Maharashtra)</option>
-                      <option value="bangalore">Bangalore (Karnataka)</option>
-                      <option value="chennai">Chennai (Tamil Nadu)</option>
-                      <option value="hyderabad">Hyderabad (Telangana)</option>
-                      <option value="pune">Pune (Maharashtra)</option>
-                      <option value="kolkata">Kolkata (West Bengal)</option>
-                    </select>
-                  </div>
-                </div>
-                <div>
-                  <Label htmlFor="business-address">Business address</Label>
-                  <Textarea 
-                    id="business-address" 
-                    placeholder="Full business address" 
-                    className="mt-2"
-                    value={legalData.businessAddress}
-                    onChange={(e) => setLegalData({...legalData, businessAddress: e.target.value})}
-                  />
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="ein">PAN (Permanent Account Number)</Label>
-                    <Input 
-                      id="ein" 
-                      placeholder="ABCDE1234F" 
-                      className="mt-2"
-                      value={legalData.ein}
-                      onChange={(e) => setLegalData({...legalData, ein: e.target.value})}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="registration-date">Registration date</Label>
-                    <Input 
-                      id="registration-date" 
-                      type="date" 
-                      className="mt-2"
-                      value={legalData.registrationDate}
-                      onChange={(e) => setLegalData({...legalData, registrationDate: e.target.value})}
-                    />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          {/* Licenses & Permits */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="mb-12"
-          >
-            <Card className="vercel-card">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="h-5 w-5 text-green-500" />
-                  Licenses & Permits
-                </CardTitle>
-                <CardDescription>Identify required licenses and permits for your business</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label htmlFor="business-license">General business license</Label>
-                  <div className="mt-2 space-y-2">
-                    <Input placeholder="License number" />
-                    <Input placeholder="Issuing authority" />
-                    <Input type="date" placeholder="Expiration date" />
-                  </div>
-                </div>
-                <div>
-                  <Label htmlFor="industry-licenses">Industry-specific licenses</Label>
-                  <Textarea
-                    id="industry-licenses"
-                    placeholder="List any industry-specific licenses required (professional licenses, health permits, etc.)"
-                    className="mt-2"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="local-permits">Local permits</Label>
-                  <Textarea
-                    id="local-permits"
-                    placeholder="Zoning permits, signage permits, fire department permits, etc."
-                    className="mt-2"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="online-business">Online business requirements</Label>
-                  <Textarea
-                    id="online-business"
-                    placeholder="Sales tax registration, privacy policy, terms of service, GDPR compliance, etc."
-                    className="mt-2"
-                  />
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          {/* Intellectual Property */}
+          {/* Download Section */}
+          {selectedProvider && selectedProvider.selectedPlan && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="mb-12"
-          >
-            <Card className="vercel-card">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Shield className="h-5 w-5 text-purple-500" />
-                  Intellectual Property
-                </CardTitle>
-                <CardDescription>Protect your intellectual property assets</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label htmlFor="trademarks">Trademarks</Label>
-                  <Textarea
-                    id="trademarks"
-                    placeholder="Business name, logo, slogans, product names to trademark"
-                    className="mt-2"
-                  />
+            >
+              <Card className="vercel-card bg-gradient-to-r from-green-500/10 to-blue-500/10 border-green-200">
+                <CardContent className="py-8">
+                  <div className="text-center">
+                    <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                      <Download className="h-8 w-8 text-white" />
                 </div>
-                <div>
-                  <Label htmlFor="copyrights">Copyrights</Label>
-                  <Textarea
-                    id="copyrights"
-                    placeholder="Original content, software code, marketing materials, etc."
-                    className="mt-2"
-                  />
+                    <h2 className="text-2xl font-bold text-foreground mb-4">
+                      Download Service Selection
+                    </h2>
+                    <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
+                      Download a comprehensive document with your selected provider, plan details, and cost information.
+                    </p>
+                    <div className="bg-white dark:bg-gray-800 rounded-lg p-4 mb-6 max-w-md mx-auto">
+                      <div className="text-sm text-muted-foreground mb-2">Selected Service:</div>
+                      <div className="font-semibold text-lg">{selectedProvider.name}</div>
+                      <div className="text-sm text-muted-foreground mb-2">Plan:</div>
+                      <div className="font-semibold">{selectedProvider.selectedPlan === 'basic' ? 'Basic Plan' : 'Premium Plan'}</div>
+                      <div className="text-sm text-muted-foreground mb-2">Cost:</div>
+                      <div className="font-bold text-2xl text-green-600">
+                        {selectedProvider.selectedPlan === 'basic' ? selectedProvider.basicPlan.price : selectedProvider.premiumPlan.price}
                 </div>
-                <div>
-                  <Label htmlFor="patents">Patents</Label>
-                  <Textarea
-                    id="patents"
-                    placeholder="Inventions, processes, or unique methods that could be patented"
-                    className="mt-2"
-                  />
                 </div>
-                <div>
-                  <Label htmlFor="trade-secrets">Trade secrets</Label>
-                  <Textarea
-                    id="trade-secrets"
-                    placeholder="Proprietary information, formulas, customer lists, etc."
-                    className="mt-2"
-                  />
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          {/* Contracts & Agreements */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-            className="mb-12"
-          >
-            <Card className="vercel-card">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="h-5 w-5 text-orange-500" />
-                  Essential Contracts & Agreements
-                </CardTitle>
-                <CardDescription>Key legal documents your business needs</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {[
-                    "Founder/Co-founder agreements",
-                    "Employee contracts and offer letters",
-                    "Non-disclosure agreements (NDAs)",
-                    "Non-compete agreements",
-                    "Customer terms of service",
-                    "Privacy policy",
-                    "Vendor/supplier agreements",
-                    "Partnership agreements",
-                    "Licensing agreements",
-                    "Independent contractor agreements",
-                  ].map((contract, index) => (
-                    <div key={index} className="flex items-center space-x-3">
-                      <input
-                        type="checkbox"
-                        id={`contract-${index}`}
-                        className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-                      />
-                      <label htmlFor={`contract-${index}`} className="text-sm text-foreground flex-1">
-                        {contract}
-                      </label>
-                      <Input placeholder="Status/Notes" className="w-32 text-xs" />
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          {/* Compliance & Regulations */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.5 }}
-            className="mb-12"
-          >
-            <Card className="vercel-card">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <AlertTriangle className="h-5 w-5 text-red-500" />
-                  Compliance & Regulations
-                </CardTitle>
-                <CardDescription>Stay compliant with relevant regulations</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label htmlFor="data-protection">Data protection compliance</Label>
-                  <Textarea
-                    id="data-protection"
-                    placeholder="GDPR, CCPA, HIPAA, or other data protection requirements"
-                    className="mt-2"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="industry-regulations">Industry-specific regulations</Label>
-                  <Textarea
-                    id="industry-regulations"
-                    placeholder="Financial services, healthcare, food safety, etc."
-                    className="mt-2"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="employment-law">Employment law compliance</Label>
-                  <Textarea
-                    id="employment-law"
-                    placeholder="Wage and hour laws, anti-discrimination policies, workplace safety"
-                    className="mt-2"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="tax-obligations">Tax obligations</Label>
-                  <Textarea
-                    id="tax-obligations"
-                    placeholder="Income tax, sales tax, payroll tax, quarterly filings"
-                    className="mt-2"
-                  />
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          {/* Legal Budget & Timeline */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.6 }}
-            className="mb-12"
-          >
-            <Card className="vercel-card">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <CheckCircle className="h-5 w-5 text-emerald-500" />
-                  Legal Budget & Timeline
-                </CardTitle>
-                <CardDescription>Plan your legal expenses and timeline</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="legal-budget">Legal budget</Label>
-                    <Input id="legal-budget" placeholder="₹4,15,000 - ₹12,45,000" className="mt-2" />
-                  </div>
-                  <div>
-                    <Label htmlFor="attorney-contact">Attorney/Legal counsel</Label>
-                    <Input id="attorney-contact" placeholder="Name and contact info" className="mt-2" />
-                  </div>
-                </div>
-                <div>
-                  <Label htmlFor="priority-items">Priority legal items (next 30 days)</Label>
-                  <Textarea
-                    id="priority-items"
-                    placeholder="Most urgent legal tasks to complete first"
-                    className="mt-2"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="ongoing-compliance">Ongoing compliance tasks</Label>
-                  <Textarea
-                    id="ongoing-compliance"
-                    placeholder="Regular legal maintenance tasks and deadlines"
-                    className="mt-2"
-                  />
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-              {/* Next Steps */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.7 }}
-                className="text-center"
-              >
                 <Button 
                   size="lg" 
                   className="px-8 py-3"
-                  onClick={() => setActiveTab('legal-document')}
+                      onClick={downloadProviderPDF}
                 >
-                  Generate Legal Document
-                  <ArrowRight className="ml-2 h-5 w-5" />
+                      Download Service Selection PDF
+                      <Download className="ml-2 h-5 w-5" />
                 </Button>
-              </motion.div>
-            </TabsContent>
-
-            {/* Legal Document Tab */}
-            <TabsContent value="legal-document" className="space-y-6">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.1 }}
-              >
-                <Card className="vercel-card">
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <CardTitle className="flex items-center gap-2">
-                          <FileText className="h-5 w-5 text-blue-500" />
-                          Legal Requirements Document
-                        </CardTitle>
-                        <CardDescription>
-                          Your comprehensive legal requirements document with entity analysis and provider recommendations
-                        </CardDescription>
                       </div>
-                      <div className="flex gap-2">
-                        <Button 
-                          onClick={generateLegalDocument}
-                          disabled={!businessEntityAnalysis}
-                          variant="outline"
-                        >
-                          Generate Document
-                        </Button>
-                        {businessEntityAnalysis && (
-                          <Button onClick={generateLegalDocument}>
-                            <Download className="h-4 w-4 mr-2" />
-                            Download
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    {businessEntityAnalysis ? (
-                      <div className="space-y-6">
-                        {/* Document Preview */}
-                        <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
-                          <h3 className="text-lg font-semibold mb-4">Document Preview</h3>
-                          <div className="space-y-4 text-sm">
-                            <div>
-                              <h4 className="font-medium">Business Entity Analysis</h4>
-                              <p className="text-muted-foreground">
-                                Recommended: <strong>{businessEntityAnalysis?.recommendedEntity?.type || 'Loading...'}</strong> in {businessEntityAnalysis?.recommendedEntity?.recommendedState || 'Loading...'}
-                              </p>
-                            </div>
-                            <div>
-                              <h4 className="font-medium">Key Benefits</h4>
-                              <ul className="space-y-1">
-                                {businessEntityAnalysis?.recommendedEntity?.benefits?.slice(0, 3).map((benefit: string, index: number) => (
-                                  <li key={index} className="flex items-start gap-2">
-                                    <span className="text-green-500 mt-1">•</span>
-                                    <span>{benefit}</span>
-                                  </li>
-                                )) || <li className="text-gray-500">Loading benefits...</li>}
-                              </ul>
-                            </div>
-                            <div>
-                              <h4 className="font-medium">Timeline & Costs</h4>
-                              <p className="text-muted-foreground">
-                                Incorporation timeline: {businessEntityAnalysis?.incorporationRequirements?.estimatedTimeline || 'Loading...'}
-                              </p>
-                              <p className="text-muted-foreground">
-                                Estimated costs: {businessEntityAnalysis?.costAnalysis?.incorporationCosts?.[businessEntityAnalysis?.recommendedEntity?.recommendedState?.toLowerCase()] || 'Loading...'}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Document Sections */}
-                        <div className="space-y-4">
-                          <h3 className="text-lg font-semibold">Document Sections</h3>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="border border-border rounded-lg p-4">
-                              <h4 className="font-medium mb-2">✅ Business Entity Analysis</h4>
-                              <p className="text-sm text-muted-foreground">
-                                AI-powered recommendation for {businessEntityAnalysis?.recommendedEntity?.type || 'Loading...'} with detailed reasoning
-                              </p>
-                            </div>
-                            <div className="border border-border rounded-lg p-4">
-                              <h4 className="font-medium mb-2">✅ Entity Comparison</h4>
-                              <p className="text-sm text-muted-foreground">
-                                Detailed comparison of LLC, Corporation, Partnership, and Sole Proprietorship
-                              </p>
-                            </div>
-                            <div className="border border-border rounded-lg p-4">
-                              <h4 className="font-medium mb-2">✅ Incorporation Requirements</h4>
-                              <p className="text-sm text-muted-foreground">
-                                Required documents, filing requirements, and timeline
-                              </p>
-                            </div>
-                            <div className="border border-border rounded-lg p-4">
-                              <h4 className="font-medium mb-2">✅ Cost Analysis</h4>
-                              <p className="text-sm text-muted-foreground">
-                                Incorporation costs by state and ongoing compliance costs
-                              </p>
-                            </div>
-                            {providerPricing && (
-                              <>
-                                <div className="border border-border rounded-lg p-4">
-                                  <h4 className="font-medium mb-2">✅ Provider Recommendations</h4>
-                                  <p className="text-sm text-muted-foreground">
-                                    Cheapest: {providerPricing?.comparison?.cheapest?.name || 'Loading...'} ({providerPricing?.comparison?.cheapest?.basicPlan?.price || 'Loading...'})
-                                  </p>
-                                </div>
-                                <div className="border border-border rounded-lg p-4">
-                                  <h4 className="font-medium mb-2">✅ Legal Checklist</h4>
-                                  <p className="text-sm text-muted-foreground">
-                                    Step-by-step checklist for incorporation and compliance
-                                  </p>
-                                </div>
-                              </>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Download Instructions */}
-                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-                          <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                            <Download className="h-5 w-5 text-blue-600" />
-                            Download Your Legal Document
-                          </h3>
-                          <p className="text-sm text-muted-foreground mb-4">
-                            Your comprehensive legal requirements document includes all the analysis, recommendations, and provider pricing information. 
-                            This document can be used for:
-                          </p>
-                          <ul className="space-y-2 text-sm">
-                            <li className="flex items-start gap-2">
-                              <CheckCircle className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
-                              <span>Sharing with legal counsel for incorporation</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <CheckCircle className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
-                              <span>Reference during the incorporation process</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <CheckCircle className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
-                              <span>Comparing provider options and pricing</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <CheckCircle className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
-                              <span>Planning legal budget and timeline</span>
-                            </li>
-                          </ul>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="text-center py-8">
-                        <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                        <h3 className="text-lg font-semibold mb-2">No legal document available</h3>
-                        <p className="text-muted-foreground mb-4">
-                          Complete entity analysis to generate your legal requirements document
-                        </p>
-                        <Button onClick={loadBusinessEntityAnalysis} disabled={loading}>
-                          Analyze Business Entity
-                        </Button>
-                      </div>
-                    )}
                   </CardContent>
                 </Card>
               </motion.div>
-            </TabsContent>
-          </Tabs>
+          )}
         </div>
       </div>
     </Layout>

@@ -1,647 +1,334 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { Layout } from "@/components/layout"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import {
-  Brain, 
-  Lightbulb, 
-  Target, 
-  Users, 
-  TrendingUp, 
-  DollarSign, 
-  Clock, 
-  CheckCircle, 
-  AlertTriangle,
-  Zap,
-  FileText,
-  BarChart3,
-  UserPlus,
-  TestTube,
-  Rocket,
-  ArrowRight,
-  Loader2,
-  Sparkles
-} from "lucide-react"
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { motion } from 'framer-motion'
+import { Layout } from '@/components/layout'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Plus, FolderOpen, Calendar, User, Crown, Star, ArrowRight, Settings, LogOut } from 'lucide-react'
 
-// Types for our AI co-founder system
-interface StartupIdea {
+interface User {
   id: string
-  title: string
-  description: string
-  problem: string
-  solution: string
-  targetMarket: string
-  stage: 'idea' | 'validation' | 'mvp' | 'growth'
-  progress: number
-  createdAt: Date
+  email: string
+  name: string
+  subscription_plan: string
+  subscription_status: string
 }
 
-interface ValidationExperiment {
-  id: string
-  title: string
-  description: string
-  cost: string
-  timeToComplete: string
-  successMetrics: string[]
-  status: 'pending' | 'in_progress' | 'completed'
-}
-
-interface CofounderMatch {
+interface Project {
   id: string
   name: string
-  skills: string[]
-  experience: string
-  availability: string
-  matchScore: number
-  complementarySkills: string[]
+  description: string
+  problem_statement: string
+  status: string
+  created_at: string
+  updated_at: string
 }
 
 export default function DashboardPage() {
-  // State management
-  const [currentIdea, setCurrentIdea] = useState<StartupIdea | null>(null)
-  const [isGeneratingPlan, setIsGeneratingPlan] = useState(false)
-  const [userPrompt, setUserPrompt] = useState('')
-  const [startupPlan, setStartupPlan] = useState<any>(null)
-  const [validationExperiments, setValidationExperiments] = useState<ValidationExperiment[]>([])
-  const [cofounderMatches, setCofounderMatches] = useState<CofounderMatch[]>([])
-  const [activeTab, setActiveTab] = useState('overview')
+  const [user, setUser] = useState<User | null>(null)
+  const [projects, setProjects] = useState<Project[]>([])
+  const [loading, setLoading] = useState(true)
+  const [showCreateProject, setShowCreateProject] = useState(false)
+  const [newProject, setNewProject] = useState({
+    name: '',
+    description: '',
+    problemStatement: ''
+  })
+  const router = useRouter()
 
-  // Mock data for demonstration
   useEffect(() => {
-    // Simulate existing startup ideas
-    const mockIdea: StartupIdea = {
-      id: '1',
-      title: 'AI-Powered Study Buddy',
-      description: 'An AI tutor that adapts to individual learning styles and helps students study more effectively',
-      problem: 'Students struggle with personalized learning and often feel overwhelmed by traditional study methods',
-      solution: 'AI-powered platform that creates custom study plans, tracks progress, and provides adaptive tutoring',
-      targetMarket: 'College students aged 18-25',
-      stage: 'validation',
-      progress: 65,
-      createdAt: new Date('2024-01-15')
-    }
-    setCurrentIdea(mockIdea)
-
-    // Mock validation experiments
-    const mockExperiments: ValidationExperiment[] = [
-      {
-        id: '1',
-        title: 'Student Survey',
-        description: 'Survey 100+ students about their study habits and pain points',
-        cost: '$50',
-        timeToComplete: '1 week',
-        successMetrics: ['50+ responses', '80% completion rate', 'Clear pain points identified'],
-        status: 'completed'
-      },
-      {
-        id: '2',
-        title: 'Landing Page Test',
-        description: 'Create a landing page to gauge interest and collect email signups',
-        cost: '$100',
-        timeToComplete: '2 weeks',
-        successMetrics: ['5% conversion rate', '200+ signups', 'Positive feedback'],
-        status: 'in_progress'
-      },
-      {
-        id: '3',
-        title: 'Paid Ad Campaign',
-        description: 'Run targeted Facebook/Instagram ads to test market demand',
-        cost: '$200',
-        timeToComplete: '1 week',
-        successMetrics: ['$2 CAC', '10% CTR', 'Positive ROI'],
-        status: 'pending'
-      }
-    ]
-    setValidationExperiments(mockExperiments)
-
-    // Mock co-founder matches
-    const mockMatches: CofounderMatch[] = [
-      {
-        id: '1',
-        name: 'Sarah Chen',
-        skills: ['Frontend Development', 'UI/UX Design', 'React'],
-        experience: '2 years at Google, built 3 mobile apps',
-        availability: 'Part-time (20hrs/week)',
-        matchScore: 95,
-        complementarySkills: ['Backend Development', 'AI/ML', 'Business Development']
-      },
-      {
-        id: '2',
-        name: 'Marcus Rodriguez',
-        skills: ['Backend Development', 'Database Design', 'Python'],
-        experience: '3 years at Microsoft, AI/ML specialist',
-        availability: 'Full-time',
-        matchScore: 88,
-        complementarySkills: ['Frontend Development', 'UI/UX Design', 'Marketing']
-      },
-      {
-        id: '3',
-        name: 'Emily Johnson',
-        skills: ['Marketing', 'Business Development', 'Sales'],
-        experience: '4 years at startup, led 2 successful launches',
-        availability: 'Part-time (15hrs/week)',
-        matchScore: 82,
-        complementarySkills: ['Technical Development', 'Product Management', 'Operations']
-      }
-    ]
-    setCofounderMatches(mockMatches)
+    checkAuthAndLoadData()
   }, [])
 
-  // Generate startup plan from user prompt
-  const generateStartupPlan = async () => {
-    if (!userPrompt.trim()) return
-    
-    setIsGeneratingPlan(true)
-    
+  const checkAuthAndLoadData = async () => {
     try {
-      // Simulate AI processing
-      await new Promise(resolve => setTimeout(resolve, 3000))
+      // Check authentication
+      const authResponse = await fetch('/api/auth/me')
+      const authData = await authResponse.json()
       
-      const mockPlan = {
-        problemStatement: `Based on your idea: "${userPrompt}", we've identified the core problem and refined it into a clear statement.`,
-        targetCustomer: 'Primary: College students aged 18-25 who struggle with study efficiency. Secondary: High school students preparing for college.',
-        businessModel: 'Freemium SaaS model with premium features for advanced AI tutoring and analytics.',
-        revenueStreams: ['Subscription plans ($9.99/month)', 'Premium features ($19.99/month)', 'Institutional licenses ($500/year)'],
-        keyMetrics: ['Monthly Active Users', 'Conversion Rate', 'Customer Acquisition Cost', 'Lifetime Value'],
-        nextSteps: [
-          'Validate problem with 50+ student interviews',
-          'Build MVP with core AI tutoring features',
-          'Test with 100 beta users',
-          'Iterate based on feedback',
-          'Launch public beta'
-        ],
-        timeline: '3-6 months to MVP, 6-12 months to product-market fit',
-        fundingNeeds: '$25,000 for MVP development and initial marketing'
+      if (!authData.success) {
+        router.push('/auth')
+        return
       }
+
+      setUser(authData.user)
+
+      // Load projects
+      const projectsResponse = await fetch('/api/projects')
+      const projectsData = await projectsResponse.json()
       
-      setStartupPlan(mockPlan)
-      setActiveTab('plan')
+      if (projectsData.success) {
+        setProjects(projectsData.projects)
+      }
     } catch (error) {
-      console.error('Error generating startup plan:', error)
+      console.error('Error loading dashboard data:', error)
+      router.push('/auth')
     } finally {
-      setIsGeneratingPlan(false)
+      setLoading(false)
     }
+  }
+
+  const handleCreateProject = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!newProject.name || !newProject.problemStatement) {
+      return
+    }
+
+    try {
+      const response = await fetch('/api/projects', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: newProject.name,
+          description: newProject.description,
+          problemStatement: newProject.problemStatement
+        }),
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        setProjects([data.project, ...projects])
+        setNewProject({ name: '', description: '', problemStatement: '' })
+        setShowCreateProject(false)
+      }
+    } catch (error) {
+      console.error('Error creating project:', error)
+    }
+  }
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' })
+      router.push('/auth')
+    } catch (error) {
+      console.error('Error logging out:', error)
+    }
+  }
+
+  const openProject = (projectId: string) => {
+    router.push(`/project/${projectId}`)
+  }
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-muted-foreground">Loading dashboard...</p>
+          </div>
+        </div>
+      </Layout>
+    )
   }
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="py-8 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
           {/* Header */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="mb-12"
-          >
-            <div className="flex items-center gap-4 mb-6">
-              <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center">
-                <Brain className="h-8 w-8 text-white" />
-              </div>
-              <div>
-                <h1 className="text-4xl md:text-6xl font-bold">
-              <span className="bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
-                    AI Co-Founder
-              </span>
-            </h1>
-                <p className="text-xl text-gray-300">Your intelligent startup companion from idea to MVP</p>
-              </div>
+          <div className="flex justify-between items-center mb-8">
+            <div>
+              <h1 className="text-3xl font-bold text-foreground">
+                Welcome back, {user?.name}!
+              </h1>
+              <p className="text-muted-foreground mt-2">
+                Manage your startup projects and continue building your vision
+              </p>
             </div>
-          </motion.div>
-
-          {/* Quick Start Section */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-            className="mb-8"
-          >
-            <Card className="vercel-card">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-purple-500" />
-                  Generate Your Startup Plan
-                </CardTitle>
-                <CardDescription>
-                  Describe your idea in a few sentences and get a comprehensive startup plan
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <Textarea
-                  placeholder="Describe your startup idea... (e.g., 'I want to build an AI-powered study app that helps college students learn more effectively by adapting to their learning style')"
-                  value={userPrompt}
-                  onChange={(e) => setUserPrompt(e.target.value)}
-                  className="min-h-[100px]"
-                />
-                <Button 
-                  onClick={generateStartupPlan}
-                  disabled={!userPrompt.trim() || isGeneratingPlan}
-                  size="lg"
-                  className="w-full"
-                >
-                  {isGeneratingPlan ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Generating Your Plan...
-                    </>
-                  ) : (
-                    <>
-                      <Rocket className="h-4 w-4 mr-2" />
-                      Generate Startup Plan
-                    </>
-                  )}
-                </Button>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          {/* Main Content Tabs */}
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-5">
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="validation">Validation</TabsTrigger>
-              <TabsTrigger value="plan">Startup Plan</TabsTrigger>
-              <TabsTrigger value="cofounders">Find Co-Founders</TabsTrigger>
-              <TabsTrigger value="financials">Financial Canvas</TabsTrigger>
-            </TabsList>
-
-            {/* Overview Tab */}
-            <TabsContent value="overview" className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <Card className="vercel-card">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground">Current Stage</p>
-                        <p className="text-2xl font-bold capitalize">{currentIdea?.stage || 'Idea'}</p>
-                      </div>
-                      <Target className="h-8 w-8 text-blue-500" />
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="vercel-card">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground">Progress</p>
-                        <p className="text-2xl font-bold">{currentIdea?.progress || 0}%</p>
-                      </div>
-                      <TrendingUp className="h-8 w-8 text-green-500" />
-                    </div>
-                    <Progress value={currentIdea?.progress || 0} className="mt-2" />
-                  </CardContent>
-                </Card>
-
-                <Card className="vercel-card">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground">Experiments</p>
-                        <p className="text-2xl font-bold">{validationExperiments.length}</p>
-                      </div>
-                      <TestTube className="h-8 w-8 text-purple-500" />
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="vercel-card">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground">Co-Founder Matches</p>
-                        <p className="text-2xl font-bold">{cofounderMatches.length}</p>
-                      </div>
-                      <UserPlus className="h-8 w-8 text-orange-500" />
-                    </div>
-                  </CardContent>
-                </Card>
+            
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                {user?.subscription_plan === 'free' ? (
+                  <Button variant="outline" size="sm">
+                    <Star className="h-4 w-4 mr-2" />
+                    Free Plan
+                  </Button>
+                ) : (
+                  <Button variant="outline" size="sm" className="border-yellow-500 text-yellow-600">
+                    <Crown className="h-4 w-4 mr-2" />
+                    {user?.subscription_plan === 'basic' ? 'Basic Plan' : 'Premium Plan'}
+                  </Button>
+                )}
               </div>
-
-              {currentIdea && (
-                <Card className="vercel-card">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Lightbulb className="h-5 w-5 text-yellow-500" />
-                      Current Startup Idea
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <h3 className="text-xl font-semibold">{currentIdea.title}</h3>
-                      <p className="text-muted-foreground">{currentIdea.description}</p>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <h4 className="font-medium text-sm text-muted-foreground">Problem</h4>
-                        <p className="text-sm">{currentIdea.problem}</p>
-                      </div>
-                      <div>
-                        <h4 className="font-medium text-sm text-muted-foreground">Solution</h4>
-                        <p className="text-sm">{currentIdea.solution}</p>
-                      </div>
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-sm text-muted-foreground">Target Market</h4>
-                      <p className="text-sm">{currentIdea.targetMarket}</p>
-                  </div>
-                  </CardContent>
-                </Card>
-              )}
-            </TabsContent>
-
-            {/* Validation Experiments Tab */}
-            <TabsContent value="validation" className="space-y-6">
-              <Card className="vercel-card">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <TestTube className="h-5 w-5 text-purple-500" />
-                    Idea Validation Experiments
-                  </CardTitle>
-                  <CardDescription>
-                    Low-cost experiments to validate your startup idea before building
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {validationExperiments.map((experiment, index) => (
-                      <Card key={experiment.id} className="vercel-card">
-                        <CardContent className="p-4">
-                          <div className="flex items-start justify-between mb-3">
-                            <div>
-                              <h3 className="font-semibold">{experiment.title}</h3>
-                              <p className="text-sm text-muted-foreground">{experiment.description}</p>
-                            </div>
-                            <Badge 
-                              variant={
-                                experiment.status === 'completed' ? 'default' :
-                                experiment.status === 'in_progress' ? 'secondary' : 'outline'
-                              }
-                            >
-                              {experiment.status.replace('_', ' ')}
-                            </Badge>
-                          </div>
-                          <div className="grid grid-cols-3 gap-4 text-sm">
-                            <div>
-                              <span className="font-medium">Cost:</span>
-                              <p className="text-muted-foreground">{experiment.cost}</p>
-                            </div>
-                            <div>
-                              <span className="font-medium">Timeline:</span>
-                              <p className="text-muted-foreground">{experiment.timeToComplete}</p>
-                            </div>
-                            <div>
-                              <span className="font-medium">Success Metrics:</span>
-                              <ul className="text-muted-foreground">
-                                {experiment.successMetrics.map((metric, i) => (
-                                  <li key={i} className="text-xs">• {metric}</li>
-                                ))}
-                              </ul>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                </CardContent>
-                </Card>
-            </TabsContent>
-
-            {/* Startup Plan Tab */}
-            <TabsContent value="plan" className="space-y-6">
-              {startupPlan ? (
-                <div className="space-y-6">
-                  <Card className="vercel-card">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <FileText className="h-5 w-5 text-blue-500" />
-                        Generated Startup Plan
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                      <div>
-                        <h3 className="font-semibold mb-2">Problem Statement</h3>
-                        <p className="text-muted-foreground">{startupPlan.problemStatement}</p>
-                      </div>
-                      
-                      <div>
-                        <h3 className="font-semibold mb-2">Target Customer</h3>
-                        <p className="text-muted-foreground">{startupPlan.targetCustomer}</p>
-                      </div>
-                      
-                      <div>
-                        <h3 className="font-semibold mb-2">Business Model</h3>
-                        <p className="text-muted-foreground">{startupPlan.businessModel}</p>
-                      </div>
-                      
-                      <div>
-                        <h3 className="font-semibold mb-2">Revenue Streams</h3>
-                        <ul className="list-disc list-inside text-muted-foreground space-y-1">
-                          {startupPlan.revenueStreams.map((stream: string, index: number) => (
-                            <li key={index}>{stream}</li>
-                          ))}
-                        </ul>
-                      </div>
-                      
-                      <div>
-                        <h3 className="font-semibold mb-2">Key Metrics</h3>
-                        <div className="flex flex-wrap gap-2">
-                          {startupPlan.keyMetrics.map((metric: string, index: number) => (
-                            <Badge key={index} variant="outline">{metric}</Badge>
-                          ))}
-                        </div>
-            </div>
-
-                      <div>
-                        <h3 className="font-semibold mb-2">Next Steps</h3>
-                        <ol className="list-decimal list-inside text-muted-foreground space-y-1">
-                          {startupPlan.nextSteps.map((step: string, index: number) => (
-                            <li key={index}>{step}</li>
-                          ))}
-                        </ol>
-                      </div>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <h3 className="font-semibold mb-2">Timeline</h3>
-                          <p className="text-muted-foreground">{startupPlan.timeline}</p>
-                  </div>
-                        <div>
-                          <h3 className="font-semibold mb-2">Funding Needs</h3>
-                          <p className="text-muted-foreground">{startupPlan.fundingNeeds}</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              ) : (
-                <Card className="vercel-card">
-                  <CardContent className="p-12 text-center">
-                    <FileText className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-xl font-semibold mb-2">No Startup Plan Generated Yet</h3>
-                    <p className="text-muted-foreground mb-4">
-                      Enter your startup idea above to generate a comprehensive plan
-                    </p>
-                    <Button onClick={() => setActiveTab('overview')}>
-                      Go to Overview
-                    </Button>
-                  </CardContent>
-                </Card>
-              )}
-            </TabsContent>
-
-            {/* Co-Founder Matching Tab */}
-            <TabsContent value="cofounders" className="space-y-6">
-              <Card className="vercel-card">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <UserPlus className="h-5 w-5 text-orange-500" />
-                    Co-Founder Matches
-                  </CardTitle>
-                  <CardDescription>
-                    Find complementary team members from your campus community
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {cofounderMatches.map((match) => (
-                      <Card key={match.id} className="vercel-card">
-                        <CardContent className="p-4">
-                          <div className="flex items-start justify-between mb-3">
-                            <div>
-                              <h3 className="font-semibold text-lg">{match.name}</h3>
-                              <p className="text-sm text-muted-foreground">{match.experience}</p>
-                            </div>
-                            <div className="text-right">
-                              <Badge variant="default" className="mb-2">
-                                {match.matchScore}% Match
-                              </Badge>
-                              <p className="text-sm text-muted-foreground">{match.availability}</p>
-                            </div>
-                          </div>
-                          
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                              <h4 className="font-medium text-sm mb-2">Skills</h4>
-                              <div className="flex flex-wrap gap-1">
-                                {match.skills.map((skill, index) => (
-                                  <Badge key={index} variant="secondary" className="text-xs">
-                                    {skill}
-                                  </Badge>
-                                ))}
-                              </div>
-                            </div>
-                            <div>
-                              <h4 className="font-medium text-sm mb-2">Complementary Skills Needed</h4>
-                              <div className="flex flex-wrap gap-1">
-                                {match.complementarySkills.map((skill, index) => (
-                                  <Badge key={index} variant="outline" className="text-xs">
-                                    {skill}
-                                  </Badge>
-                                ))}
-                              </div>
-                            </div>
-                          </div>
-                          
-                          <div className="mt-4 flex gap-2">
-                            <Button size="sm">Contact</Button>
-                            <Button size="sm" variant="outline">View Profile</Button>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                </CardContent>
-                </Card>
-            </TabsContent>
-
-            {/* Financial Canvas Tab */}
-            <TabsContent value="financials" className="space-y-6">
-              <Card className="vercel-card">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <BarChart3 className="h-5 w-5 text-green-500" />
-                    Financial Canvas
-                  </CardTitle>
-                  <CardDescription>
-                    Basic revenue, cost, and runway projections for your startup
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-4">
-                      <h3 className="font-semibold text-lg">Revenue Projections</h3>
-                      <div className="space-y-3">
-                        <div className="flex justify-between">
-                          <span>Month 1-3 (MVP)</span>
-                          <span className="font-medium">₹0</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Month 4-6 (Beta)</span>
-                          <span className="font-medium">₹41,500</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Month 7-12 (Launch)</span>
-                          <span className="font-medium">₹2,07,500</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Year 2</span>
-                          <span className="font-medium">₹12,45,000</span>
-                        </div>
-                      </div>
-                    </div>
-                    
-                  <div className="space-y-4">
-                      <h3 className="font-semibold text-lg">Cost Structure</h3>
-                      <div className="space-y-3">
-                        <div className="flex justify-between">
-                          <span>Development</span>
-                          <span className="font-medium">₹6,64,000</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Marketing</span>
-                          <span className="font-medium">₹2,49,000</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Operations</span>
-                          <span className="font-medium">₹1,66,000</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Legal/Admin</span>
-                          <span className="font-medium">₹83,000</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="mt-6 p-4 bg-muted rounded-lg">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-                      <div>
-                        <h4 className="font-semibold text-sm text-muted-foreground">Total Funding Needed</h4>
-                        <p className="text-2xl font-bold">₹11,62,000</p>
-                      </div>
-                      <div>
-                        <h4 className="font-semibold text-sm text-muted-foreground">Runway</h4>
-                        <p className="text-2xl font-bold">12 months</p>
-                      </div>
-                      <div>
-                        <h4 className="font-semibold text-sm text-muted-foreground">Break-even</h4>
-                        <p className="text-2xl font-bold">Month 18</p>
-                      </div>
+              
+              <Button variant="outline" size="sm" onClick={handleLogout}>
+                <LogOut className="h-4 w-4 mr-2" />
+                Logout
+              </Button>
             </div>
           </div>
+
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center">
+                  <FolderOpen className="h-8 w-8 text-blue-600" />
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-muted-foreground">Total Projects</p>
+                    <p className="text-2xl font-bold">{projects.length}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center">
+                  <Calendar className="h-8 w-8 text-green-600" />
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-muted-foreground">Active Projects</p>
+                    <p className="text-2xl font-bold">
+                      {projects.filter(p => p.status === 'in_progress').length}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center">
+                  <User className="h-8 w-8 text-purple-600" />
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-muted-foreground">Plan</p>
+                    <p className="text-2xl font-bold capitalize">{user?.subscription_plan}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Projects Section */}
+          <div className="mb-8">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-foreground">Your Projects</h2>
+              
+              <Dialog open={showCreateProject} onOpenChange={setShowCreateProject}>
+                <DialogTrigger asChild>
+                  <Button>
+                    <Plus className="h-4 w-4 mr-2" />
+                    New Project
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Create New Project</DialogTitle>
+                    <DialogDescription>
+                      Start a new startup project and begin building your vision
+                    </DialogDescription>
+                  </DialogHeader>
+                  
+                  <form onSubmit={handleCreateProject} className="space-y-4">
+                    <div>
+                      <Label htmlFor="project-name">Project Name</Label>
+                      <Input
+                        id="project-name"
+                        placeholder="Enter project name"
+                        value={newProject.name}
+                        onChange={(e) => setNewProject({ ...newProject, name: e.target.value })}
+                        required
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="project-description">Description (Optional)</Label>
+                      <Textarea
+                        id="project-description"
+                        placeholder="Brief description of your project"
+                        value={newProject.description}
+                        onChange={(e) => setNewProject({ ...newProject, description: e.target.value })}
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="problem-statement">Problem Statement</Label>
+                      <Textarea
+                        id="problem-statement"
+                        placeholder="Describe the problem your startup solves"
+                        value={newProject.problemStatement}
+                        onChange={(e) => setNewProject({ ...newProject, problemStatement: e.target.value })}
+                        required
+                      />
+                    </div>
+                    
+                    <div className="flex justify-end space-x-2">
+                      <Button type="button" variant="outline" onClick={() => setShowCreateProject(false)}>
+                        Cancel
+                      </Button>
+                      <Button type="submit">Create Project</Button>
+                    </div>
+                  </form>
+                </DialogContent>
+              </Dialog>
+            </div>
+
+            {projects.length === 0 ? (
+              <Card>
+                <CardContent className="p-12 text-center">
+                  <FolderOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">No projects yet</h3>
+                  <p className="text-muted-foreground mb-4">
+                    Create your first startup project to get started
+                  </p>
+                  <Button onClick={() => setShowCreateProject(true)}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Create Your First Project
+                  </Button>
                 </CardContent>
               </Card>
-            </TabsContent>
-          </Tabs>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {projects.map((project) => (
+                  <motion.div
+                    key={project.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => openProject(project.id)}>
+                      <CardHeader>
+                        <CardTitle className="text-lg">{project.name}</CardTitle>
+                        <CardDescription className="line-clamp-2">
+                          {project.description || 'No description provided'}
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-sm text-muted-foreground mb-4 line-clamp-3">
+                          {project.problem_statement}
+                        </p>
+                        <div className="flex justify-between items-center">
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            project.status === 'completed' 
+                              ? 'bg-green-100 text-green-800' 
+                              : project.status === 'in_progress'
+                              ? 'bg-blue-100 text-blue-800'
+                              : 'bg-gray-100 text-gray-800'
+                          }`}>
+                            {project.status.replace('_', ' ')}
+                          </span>
+                          <Button variant="ghost" size="sm">
+                            <ArrowRight className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </Layout>

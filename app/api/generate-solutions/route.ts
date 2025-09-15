@@ -44,11 +44,13 @@ export async function POST(request: NextRequest) {
         Please generate 3-5 specific solutions that:
         1. Directly address the identified problems
         2. Are practical and implementable
-        3. Include realistic cost estimates and timelines
+        3. Include realistic cost estimates in Indian Rupees (₹) and timelines
         4. Consider the severity and urgency of each problem
         5. Provide measurable effectiveness ratings
         6. Include both technical and non-technical approaches
         7. Are tailored to the specific problem categories and industries
+        
+        IMPORTANT: All cost estimates must be in Indian Rupees (₹) format, not dollars ($).
         
         Return the response as a JSON object with the following structure:
         {
@@ -171,7 +173,7 @@ async function generateFallbackSolutions(selectedProblems: string[], problemDeta
       type: problem.category === 'Safety' || problem.category === 'Maintenance' ? 'technical' : 'non-technical',
       complexity: problem.severity === 'critical' ? 'complex' : 
                  problem.severity === 'high' ? 'moderate' : 'simple',
-      estimatedCost: `$${baseCost.toLocaleString()} - $${(baseCost * 1.5).toLocaleString()}`,
+      estimatedCost: `₹${baseCost.toLocaleString()} - ₹${(baseCost * 1.5).toLocaleString()}`,
       timeToImplement: timeline,
       effectiveness: problem.severity === 'critical' ? 95 : 
                     problem.severity === 'high' ? 88 : 
@@ -206,7 +208,7 @@ async function generateFallbackSolutions(selectedProblems: string[], problemDeta
   // Add a comprehensive solution if multiple problems are selected
   if (selectedProblems.length > 1) {
     const totalCost = dynamicSolutions.reduce((sum, sol) => {
-      const cost = sol.estimatedCost.match(/\$([0-9,]+)/)?.[1]?.replace(/,/g, '') || '0'
+      const cost = sol.estimatedCost.match(/₹([0-9,]+)/)?.[1]?.replace(/,/g, '') || '0'
       return sum + parseInt(cost)
     }, 0)
     
@@ -216,7 +218,7 @@ async function generateFallbackSolutions(selectedProblems: string[], problemDeta
       description: `Comprehensive platform that addresses all ${selectedProblems.length} identified problems through an integrated approach. This solution combines multiple technologies and processes to create a unified problem-solving ecosystem.`,
       type: 'technical',
       complexity: 'complex',
-      estimatedCost: `$${(totalCost * 0.7).toLocaleString()} - $${(totalCost * 0.9).toLocaleString()}`,
+      estimatedCost: `₹${(totalCost * 0.7).toLocaleString()} - ₹${(totalCost * 0.9).toLocaleString()}`,
       timeToImplement: '3-6 months',
       effectiveness: 96,
       problemsAddressed: selectedProblems,

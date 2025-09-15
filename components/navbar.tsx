@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { motion } from "framer-motion"
+import { useState, useEffect } from "react"
 import {
   Lightbulb,
   TrendingUp,
@@ -16,8 +17,14 @@ import {
   Leaf,
   ArrowRight,
   CheckCircle,
+  User,
+  LogOut,
+  Crown,
+  Star,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
 const roadmapSteps = [
   { href: "/idea", label: "Idea", icon: Lightbulb, step: 1 },
@@ -34,11 +41,45 @@ const roadmapSteps = [
 
 export function Navbar() {
   const pathname = usePathname()
+  const [user, setUser] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
 
   const currentStepIndex = roadmapSteps.findIndex((step) => step.href === pathname)
   const currentStep = roadmapSteps[currentStepIndex]
   const nextStep = roadmapSteps[currentStepIndex + 1]
   const isHomePage = pathname === "/"
+  const isAuthPage = pathname === "/auth"
+  const isDashboardPage = pathname === "/dashboard"
+  const isPricingPage = pathname === "/pricing"
+
+  useEffect(() => {
+    checkAuthStatus()
+  }, [])
+
+  const checkAuthStatus = async () => {
+    try {
+      const response = await fetch('/api/auth/me')
+      const data = await response.json()
+      
+      if (data.success) {
+        setUser(data.user)
+      }
+    } catch (error) {
+      // User is not authenticated
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' })
+      setUser(null)
+      window.location.href = '/'
+    } catch (error) {
+      console.error('Error logging out:', error)
+    }
+  }
 
   return (
     <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b border-border">
@@ -60,49 +101,102 @@ export function Navbar() {
               </motion.div>
             </Link>
 
-            {/* Roadmap Progress */}
-            <div className="hidden lg:flex items-center space-x-2">
-              {roadmapSteps.map((step, index) => {
-                const Icon = step.icon
-                const isCompleted = currentStepIndex > index
-                const isCurrent = step.href === pathname
+            {/* Roadmap Progress - Only show on project pages */}
+            {!isAuthPage && !isDashboardPage && !isPricingPage && (
+              <div className="hidden lg:flex items-center space-x-2">
+                {roadmapSteps.map((step, index) => {
+                  const Icon = step.icon
+                  const isCompleted = currentStepIndex > index
+                  const isCurrent = step.href === pathname
 
-                return (
-                  <div key={step.href} className="flex items-center">
-                    <Link href={step.href}>
-                      <motion.div
-                        whileHover={{ scale: 1.1 }}
-                        className={cn(
-                          "w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200",
-                          isCompleted
-                            ? "bg-green-500 text-white"
-                            : isCurrent
-                              ? "bg-foreground text-background"
-                              : "bg-secondary text-muted-foreground hover:bg-secondary/80",
-                        )}
-                      >
-                        {isCompleted ? <CheckCircle className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
-                      </motion.div>
-                    </Link>
-                    {index < roadmapSteps.length - 1 && (
-                      <div
-                        className={cn("w-8 h-0.5 mx-1 transition-colors", isCompleted ? "bg-green-500" : "bg-border")}
-                      />
+                  return (
+                    <div key={step.href} className="flex items-center">
+                      <Link href={step.href}>
+                        <motion.div
+                          whileHover={{ scale: 1.1 }}
+                          className={cn(
+                            "w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200",
+                            isCompleted
+                              ? "bg-green-500 text-white"
+                              : isCurrent
+                                ? "bg-foreground text-background"
+                                : "bg-secondary text-muted-foreground hover:bg-secondary/80",
+                          )}
+                        >
+                          {isCompleted ? <CheckCircle className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
+                        </motion.div>
+                      </Link>
+                      {index < roadmapSteps.length - 1 && (
+                        <div
+                          className={cn("w-8 h-0.5 mx-1 transition-colors", isCompleted ? "bg-green-500" : "bg-border")}
+                        />
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+
+            {/* Right side buttons */}
+            <div className="flex items-center space-x-4">
+              {user ? (
+                <>
+                  {/* User subscription status */}
+                  <div className="hidden sm:flex items-center space-x-2">
+                    {user.subscription_plan === 'free' ? (
+                      <Button variant="outline" size="sm" asChild>
+                        <Link href="/pricing">
+                          <Star className="h-4 w-4 mr-2" />
+                          Free Plan
+                        </Link>
+                      </Button>
+                    ) : (
+                      <Button variant="outline" size="sm" className="border-yellow-500 text-yellow-600">
+                        <Crown className="h-4 w-4 mr-2" />
+                        {user.subscription_plan === 'basic' ? 'Basic Plan' : 'Premium Plan'}
+                      </Button>
                     )}
                   </div>
-                )
-              })}
-            </div>
 
-            {/* CTA Button */}
-            <motion.div whileHover={{ scale: 1.02 }}>
-              <Link
-                href="/get-started"
-                className="bg-foreground text-background px-4 py-2 rounded-md text-sm font-medium hover:bg-foreground/90 transition-colors"
-              >
-                Get Started
-              </Link>
-            </motion.div>
+                  {/* User menu */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="sm">
+                        <User className="h-4 w-4 mr-2" />
+                        {user.name}
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem asChild>
+                        <Link href="/dashboard">
+                          <User className="h-4 w-4 mr-2" />
+                          Dashboard
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/pricing">
+                          <Crown className="h-4 w-4 mr-2" />
+                          Upgrade Plan
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={handleLogout}>
+                        <LogOut className="h-4 w-4 mr-2" />
+                        Logout
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </>
+              ) : (
+                <>
+                  <Button variant="outline" size="sm" asChild>
+                    <Link href="/pricing">Pricing</Link>
+                  </Button>
+                  <Button size="sm" asChild>
+                    <Link href="/auth">Get Started</Link>
+                  </Button>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </motion.nav>

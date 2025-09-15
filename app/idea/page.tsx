@@ -1098,7 +1098,7 @@ Our platform combines:
                           key={problem.id}
                           className={`cursor-pointer transition-all ${
                             selectedProblems.includes(problem.id)
-                              ? 'ring-2 ring-blue-500 bg-blue-50'
+                              ? 'ring-2 ring-blue-500 bg-blue-500/10 dark:bg-blue-500/20'
                               : 'hover:shadow-md'
                           }`}
                           onClick={() => {
@@ -1457,7 +1457,7 @@ Our platform combines:
                       </div>
                     ) : (
                       <div className="space-y-6">
-                        <div className="bg-gray-50 rounded-lg p-6 max-h-96 overflow-y-auto">
+                        <div className="bg-gray-100/50 dark:bg-gray-800/50 rounded-lg p-6 max-h-96 overflow-y-auto">
                           <pre className="whitespace-pre-wrap text-sm font-mono">
                             {pitchDocument}
                           </pre>

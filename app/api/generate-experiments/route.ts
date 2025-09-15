@@ -51,12 +51,14 @@ export async function POST(request: NextRequest) {
         ${features ? features.map((f: any) => `${f.name}: ${f.description}`).join('\n') : 'Not specified'}
 
         Generate 3 specific, actionable, low-cost experiments that can validate key assumptions:
+        
+        IMPORTANT: All cost estimates must be in Indian Rupees (₹) format, not dollars ($). Use realistic Indian market pricing.
 
         1. SURVEY EXPERIMENT:
            - Target audience and sample size
            - Key questions to ask
            - Expected insights
-           - Cost estimate (under $500)
+           - Cost estimate (under ₹41,500)
            - Timeline (1-2 weeks)
            - Tools/platforms to use
 
@@ -64,7 +66,7 @@ export async function POST(request: NextRequest) {
            - Landing page concept and messaging
            - Key metrics to track
            - Call-to-action strategy
-           - Cost estimate (under $200)
+           - Cost estimate (under ₹16,600)
            - Timeline (1 week)
            - Tools/platforms to use
 
@@ -72,7 +74,7 @@ export async function POST(request: NextRequest) {
            - Ad campaign concept
            - Target audience and platforms
            - Key metrics to measure
-           - Cost estimate (under $300)
+           - Cost estimate (under ₹24,900)
            - Timeline (1-2 weeks)
            - Tools/platforms to use
 
@@ -85,7 +87,7 @@ export async function POST(request: NextRequest) {
             "sampleSize": "Number of respondents",
             "keyQuestions": ["Question 1", "Question 2", "Question 3"],
             "expectedInsights": ["Insight 1", "Insight 2", "Insight 3"],
-            "cost": "Cost estimate in USD",
+            "cost": "Cost estimate in Indian Rupees (₹)",
             "timeline": "Timeline for execution",
             "tools": ["Tool 1", "Tool 2", "Tool 3"],
             "successMetrics": ["Metric 1", "Metric 2"]
@@ -97,7 +99,7 @@ export async function POST(request: NextRequest) {
             "messaging": "Key messaging and copy",
             "callToAction": "Primary CTA strategy",
             "metricsToTrack": ["Metric 1", "Metric 2", "Metric 3"],
-            "cost": "Cost estimate in USD",
+            "cost": "Cost estimate in Indian Rupees (₹)",
             "timeline": "Timeline for execution",
             "tools": ["Tool 1", "Tool 2", "Tool 3"],
             "successMetrics": ["Metric 1", "Metric 2"]
@@ -109,7 +111,7 @@ export async function POST(request: NextRequest) {
             "targetAudience": "Target audience demographics and interests",
             "platforms": ["Platform 1", "Platform 2"],
             "metricsToMeasure": ["Metric 1", "Metric 2", "Metric 3"],
-            "cost": "Cost estimate in USD",
+            "cost": "Cost estimate in Indian Rupees (₹)",
             "timeline": "Timeline for execution",
             "tools": ["Tool 1", "Tool 2", "Tool 3"],
             "successMetrics": ["Metric 1", "Metric 2"]

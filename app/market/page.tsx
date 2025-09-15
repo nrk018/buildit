@@ -238,7 +238,7 @@ export default function MarketPage() {
                         key={problem.id}
                         className={`cursor-pointer transition-all ${
                           selectedProblem?.id === problem.id
-                            ? 'ring-2 ring-blue-500 bg-blue-50'
+                            ? 'ring-2 ring-blue-500 bg-blue-500/10 dark:bg-blue-500/20'
                             : 'hover:shadow-md'
                         }`}
                         onClick={() => handleProblemSelect(problem)}
@@ -637,7 +637,7 @@ export default function MarketPage() {
           </AnimatePresence>
 
           {/* College Implementation Section */}
-          {collegeContext && marketAnalysis?.collegeImplementation && (
+          {collegeContext && marketAnalysis?.collegeImplementation ? (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -691,6 +691,33 @@ export default function MarketPage() {
                         ))}
                       </ul>
                     </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          ) : collegeContext && analysisComplete && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="mt-12"
+            >
+              <Card className="vercel-card">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <GraduationCap className="h-5 w-5 text-green-500" />
+                    College Implementation Analysis
+                  </CardTitle>
+                  <CardDescription>
+                    College implementation data is being generated...
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-center py-8">
+                    <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-blue-500" />
+                    <p className="text-muted-foreground">
+                      Generating college-specific opportunities, challenges, and partnerships...
+                    </p>
                   </div>
                 </CardContent>
               </Card>

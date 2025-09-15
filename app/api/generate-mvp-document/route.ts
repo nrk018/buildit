@@ -8,12 +8,19 @@ export async function POST(request: NextRequest) {
   try {
     const { 
       problemStatement,
+      analyzedProblems,
+      generatedSolutions,
       businessModel,
       teamData,
+      marketAnalysis,
+      pitchDocument,
+      imageAnalysis,
       mvpData,
       experiments,
       targetMarket,
-      industry
+      industry,
+      userLocation,
+      collegeContext
     } = await request.json()
     
     if (!problemStatement || !mvpData) {
@@ -26,7 +33,7 @@ export async function POST(request: NextRequest) {
     // Check if we have the API key
     if (!process.env.GOOGLE_GEMINI_API_KEY) {
       console.warn('Google Gemini API key not found, using fallback document')
-      return await fallbackMVPDocument(problemStatement, businessModel, teamData, mvpData, experiments, targetMarket, industry)
+      return await fallbackMVPDocument(problemStatement, analyzedProblems, generatedSolutions, businessModel, teamData, marketAnalysis, pitchDocument, imageAnalysis, mvpData, experiments, targetMarket, industry, userLocation, collegeContext)
     }
 
     try {
@@ -40,11 +47,26 @@ export async function POST(request: NextRequest) {
         PROBLEM STATEMENT:
         ${problemStatement}
 
+        ANALYZED PROBLEMS:
+        ${analyzedProblems ? JSON.stringify(analyzedProblems, null, 2) : 'Not provided'}
+
+        GENERATED SOLUTIONS:
+        ${generatedSolutions ? JSON.stringify(generatedSolutions, null, 2) : 'Not provided'}
+
         BUSINESS MODEL:
         ${businessModel ? JSON.stringify(businessModel, null, 2) : 'Not provided'}
 
         TEAM DATA:
         ${teamData ? JSON.stringify(teamData, null, 2) : 'Not provided'}
+
+        MARKET ANALYSIS:
+        ${marketAnalysis ? JSON.stringify(marketAnalysis, null, 2) : 'Not provided'}
+
+        PITCH DOCUMENT:
+        ${pitchDocument ? JSON.stringify(pitchDocument, null, 2) : 'Not provided'}
+
+        IMAGE ANALYSIS:
+        ${imageAnalysis ? JSON.stringify(imageAnalysis, null, 2) : 'Not provided'}
 
         MVP DATA:
         ${mvpData ? JSON.stringify(mvpData, null, 2) : 'Not provided'}
@@ -57,6 +79,21 @@ export async function POST(request: NextRequest) {
 
         INDUSTRY:
         ${industry || 'Not specified'}
+
+        USER LOCATION:
+        ${userLocation || 'India'}
+
+        COLLEGE CONTEXT:
+        ${collegeContext ? 'Yes - This is a college campus implementation' : 'No'}
+
+        CRITICAL REQUIREMENTS:
+        - This MVP document MUST be highly specific to the exact problem statement and solutions provided above
+        - Use the exact analyzed problems, generated solutions, and business model data provided
+        - Incorporate the specific team structure, market analysis, and pitch document details
+        - All cost estimates and financial projections must be in Indian Rupees (₹) format, not dollars ($)
+        - Use realistic Indian market pricing and costs
+        - Focus on college campus implementation context
+        - Make this document actionable and specific, not generic advice
 
         Generate a comprehensive MVP document that includes:
 
@@ -186,7 +223,7 @@ export async function POST(request: NextRequest) {
       } catch (parseError) {
         console.error('Error parsing Gemini response:', parseError)
         console.log('Raw response:', text)
-        return await fallbackMVPDocument(problemStatement, businessModel, teamData, mvpData, experiments, targetMarket, industry)
+        return await fallbackMVPDocument(problemStatement, analyzedProblems, generatedSolutions, businessModel, teamData, marketAnalysis, pitchDocument, imageAnalysis, mvpData, experiments, targetMarket, industry, userLocation, collegeContext)
       }
 
       return NextResponse.json({
@@ -204,7 +241,7 @@ export async function POST(request: NextRequest) {
 
     } catch (geminiError) {
       console.error('Gemini API error:', geminiError)
-      return await fallbackMVPDocument(problemStatement, businessModel, teamData, mvpData, experiments, targetMarket, industry)
+      return await fallbackMVPDocument(problemStatement, analyzedProblems, generatedSolutions, businessModel, teamData, marketAnalysis, pitchDocument, imageAnalysis, mvpData, experiments, targetMarket, industry, userLocation, collegeContext)
     }
 
   } catch (error) {
@@ -217,7 +254,7 @@ export async function POST(request: NextRequest) {
 }
 
 // Fallback MVP document when Gemini API is not available
-async function fallbackMVPDocument(problemStatement: string, businessModel: any, teamData: any, mvpData: any, experiments: any, targetMarket: string, industry: string) {
+async function fallbackMVPDocument(problemStatement: string, analyzedProblems: any, generatedSolutions: any, businessModel: any, teamData: any, marketAnalysis: any, pitchDocument: any, imageAnalysis: any, mvpData: any, experiments: any, targetMarket: string, industry: string, userLocation: string, collegeContext: boolean) {
   const currentDate = new Date().toLocaleDateString()
   
   return NextResponse.json({
@@ -225,20 +262,20 @@ async function fallbackMVPDocument(problemStatement: string, businessModel: any,
     mvpDocument: {
       executiveSummary: {
         problemStatement: problemStatement,
-        solutionOverview: `A comprehensive solution to address ${problemStatement.substring(0, 100)}...`,
-        marketOpportunity: `Targeting ${targetMarket || 'the identified market segment'} with significant growth potential`,
-        valuePropositions: [
+        solutionOverview: `A comprehensive solution to address ${problemStatement.substring(0, 100)}... This MVP focuses on implementing the core features identified in our analysis: ${generatedSolutions?.slice(0, 3).map((s: any) => s.title).join(', ') || 'core functionality'}.`,
+        marketOpportunity: `Targeting ${targetMarket || 'college campuses in India'} with significant growth potential. ${collegeContext ? 'College implementation provides access to a concentrated user base and testing environment.' : ''}`,
+        valuePropositions: generatedSolutions?.slice(0, 3).map((s: any) => s.title) || [
           "Solves a critical problem efficiently",
           "User-friendly and accessible solution",
           "Cost-effective compared to alternatives"
         ],
-        teamOverview: `Team of ${teamData?.teamMembers?.length || 1} members with diverse expertise`,
-        mvpGoals: [
+        teamOverview: `Team of ${teamData?.teamMembers?.length || 1} members with diverse expertise. ${teamData?.founder?.name ? `Led by ${teamData.founder.name} as ${teamData.founder.title || 'Founder'}.` : ''}`,
+        mvpGoals: mvpData?.goal ? [mvpData.goal] : [
           "Validate core assumptions",
           "Achieve product-market fit",
           "Build sustainable user base"
         ],
-        successMetrics: [
+        successMetrics: mvpData?.successMetrics ? [mvpData.successMetrics] : [
           "User engagement metrics",
           "Conversion rates",
           "Customer satisfaction scores"

@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
     // Check if we have the API key
     if (!process.env.GOOGLE_GEMINI_API_KEY) {
       console.warn('Google Gemini API key not found, using fallback competitor analysis')
-      return await fallbackCompetitorAnalysis(problemTitle, problemDescription, problemCategory, problemSeverity)
+      return await fallbackCompetitorAnalysis(problemTitle, problemDescription, problemCategory, problemSeverity, userLocation, collegeContext)
     }
 
     try {
@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
         3. MARKET GAPS: What competitors are missing or doing poorly in India
         4. DIFFERENTIATION OPPORTUNITIES: How a new Indian startup could differentiate
         5. MARKET SIZING: Realistic market size for this specific problem area in India (in INR)
-        6. COLLEGE IMPLEMENTATION: ${collegeContext ? 'Specific opportunities and challenges for implementing this solution in Indian colleges/universities' : 'General market analysis'}
+        6. COLLEGE IMPLEMENTATION: ${collegeContext ? 'MANDATORY: Provide specific opportunities, challenges, and partnerships for implementing this solution in Indian colleges/universities. This is a key requirement.' : 'General market analysis only'}
 
         Focus on:
         - Real, existing companies operating in India (Indian and international)
@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
             "keyTrends": ["Indian market trend 1", "Indian market trend 2", "Indian market trend 3"],
             "marketGaps": ["Gap in Indian market 1", "Gap in Indian market 2", "Gap in Indian market 3"],
             "differentiationOpportunities": ["Indian market opportunity 1", "Indian market opportunity 2", "Indian market opportunity 3"],
-            "collegeImplementation": ${collegeContext ? '{"opportunities": ["College opportunity 1", "College opportunity 2"], "challenges": ["College challenge 1", "College challenge 2"], "partnerships": ["Potential college partnership 1", "Potential college partnership 2"]}' : 'null'}
+            "collegeImplementation": ${collegeContext ? '{"opportunities": ["College opportunity 1", "College opportunity 2", "College opportunity 3"], "challenges": ["College challenge 1", "College challenge 2", "College challenge 3"], "partnerships": ["Potential college partnership 1", "Potential college partnership 2", "Potential college partnership 3"]}' : 'null'}
           },
           "competitiveLandscape": {
             "directCompetitors": 3,
@@ -138,7 +138,7 @@ export async function POST(request: NextRequest) {
       } catch (parseError) {
         console.error('Error parsing Gemini response:', parseError)
         console.log('Raw response:', text)
-        return await fallbackCompetitorAnalysis(problemTitle, problemDescription, problemCategory, problemSeverity)
+        return await fallbackCompetitorAnalysis(problemTitle, problemDescription, problemCategory, problemSeverity, userLocation, collegeContext)
       }
 
       // Validate and structure the response
@@ -198,7 +198,7 @@ export async function POST(request: NextRequest) {
 
     } catch (geminiError) {
       console.error('Gemini API error:', geminiError)
-      return await fallbackCompetitorAnalysis(problemTitle, problemDescription, problemCategory, problemSeverity)
+      return await fallbackCompetitorAnalysis(problemTitle, problemDescription, problemCategory, problemSeverity, userLocation, collegeContext)
     }
 
   } catch (error) {
@@ -361,22 +361,31 @@ async function fallbackCompetitorAnalysis(problemTitle: string, problemDescripti
       ],
       collegeImplementation: collegeContext ? {
         opportunities: [
-          'Student internship and project opportunities',
-          'Research collaboration with Indian colleges',
-          'Campus pilot programs and testing',
-          'Educational partnerships and curriculum integration'
+          'Student internship and project opportunities in AI/ML and industrial automation',
+          'Research collaboration with Indian colleges on computer vision and IoT',
+          'Campus pilot programs for testing and validation of solutions',
+          'Educational partnerships and curriculum integration with engineering programs',
+          'Student entrepreneurship programs and startup incubation',
+          'Faculty research projects and academic publications',
+          'Industry-academia bridge programs for real-world problem solving'
         ],
         challenges: [
-          'Limited budget in Indian colleges',
-          'Infrastructure constraints',
-          'Faculty training requirements',
-          'Student engagement and adoption'
+          'Limited budget and funding constraints in Indian colleges',
+          'Infrastructure constraints for advanced AI/ML systems',
+          'Faculty training requirements for new technologies',
+          'Student engagement and adoption of complex systems',
+          'Regulatory compliance and data privacy concerns',
+          'Integration with existing college management systems',
+          'Long-term sustainability and maintenance requirements'
         ],
         partnerships: [
-          'IITs and NITs for technical collaboration',
-          'Engineering colleges for pilot programs',
-          'Government colleges for research projects',
-          'Private universities for commercial partnerships'
+          'IITs and NITs for advanced technical collaboration and research',
+          'Engineering colleges for pilot programs and student projects',
+          'Government colleges for research projects and policy development',
+          'Private universities for commercial partnerships and funding',
+          'Industry associations for real-world problem identification',
+          'Startup incubators for student entrepreneurship programs',
+          'Government bodies for policy support and funding opportunities'
         ]
       } : null
     },

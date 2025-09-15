@@ -125,6 +125,160 @@ export default function BusinessModelPage() {
     }
   }, [])
 
+  // Download business plan
+  const downloadBusinessPlan = () => {
+    if (!businessModel || !selectedProblem) return
+
+    const businessPlanContent = generateBusinessPlanContent()
+    
+    // Create a blob with the content
+    const blob = new Blob([businessPlanContent], { type: 'text/plain;charset=utf-8' })
+    
+    // Create download link
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `Business_Plan_${selectedProblem.title.replace(/[^a-zA-Z0-9]/g, '_')}.txt`
+    
+    // Trigger download
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    
+    // Clean up
+    URL.revokeObjectURL(url)
+  }
+
+  // Generate business plan content
+  const generateBusinessPlanContent = () => {
+    if (!businessModel || !selectedProblem) return ''
+
+    const content = `
+BUSINESS PLAN
+${selectedProblem.title.toUpperCase()}
+
+Generated on: ${new Date().toLocaleDateString()}
+Problem Category: ${selectedProblem.category}
+Severity: ${selectedProblem.severity}
+
+================================================================================
+EXECUTIVE SUMMARY
+================================================================================
+
+${businessModel.tagline}
+
+${businessModel.callToAction}
+
+Problem Statement:
+${selectedProblem.description}
+
+Impact: ${selectedProblem.impact}
+Urgency: ${selectedProblem.urgency}
+Estimated Cost: ${selectedProblem.estimatedCost}
+Timeline: ${selectedProblem.timeline}
+
+================================================================================
+CAMPUS IMPLEMENTATION METHODOLOGY
+================================================================================
+
+Implementation Steps:
+${businessModel.campusImplementation.methodology.map((step, index) => `${index + 1}. ${step}`).join('\n')}
+
+Challenges:
+${businessModel.campusImplementation.challenges.map((challenge, index) => `• ${challenge}`).join('\n')}
+
+Opportunities:
+${businessModel.campusImplementation.opportunities.map((opportunity, index) => `• ${opportunity}`).join('\n')}
+
+Partnerships:
+${businessModel.campusImplementation.partnerships.map((partnership, index) => `• ${partnership}`).join('\n')}
+
+Timeline: ${businessModel.campusImplementation.timeline}
+
+================================================================================
+BUSINESS MODEL CANVAS
+================================================================================
+
+Value Proposition:
+${businessModel.businessStructure.valueProposition}
+
+Customer Segments:
+${businessModel.businessStructure.customerSegments.map((segment, index) => `${index + 1}. ${segment}`).join('\n')}
+
+Key Partners:
+${businessModel.businessStructure.keyPartners.map((partner, index) => `${index + 1}. ${partner}`).join('\n')}
+
+Key Activities:
+${businessModel.businessStructure.keyActivities.map((activity, index) => `${index + 1}. ${activity}`).join('\n')}
+
+Key Resources:
+${businessModel.businessStructure.keyResources.map((resource, index) => `${index + 1}. ${resource}`).join('\n')}
+
+Channels:
+${businessModel.businessStructure.channels.map((channel, index) => `${index + 1}. ${channel}`).join('\n')}
+
+Customer Relationships:
+${businessModel.businessStructure.customerRelationships.map((relationship, index) => `${index + 1}. ${relationship}`).join('\n')}
+
+Cost Structure:
+${businessModel.businessStructure.costStructure.map((cost, index) => `${index + 1}. ${cost}`).join('\n')}
+
+Revenue Streams:
+${businessModel.businessStructure.revenueStreams.map((stream, index) => `${index + 1}. ${stream}`).join('\n')}
+
+================================================================================
+6-MONTH IMPLEMENTATION TIMELINE
+================================================================================
+
+Month 1:
+${businessModel.timeline.month1.map((task, index) => `• ${task}`).join('\n')}
+
+Month 2:
+${businessModel.timeline.month2.map((task, index) => `• ${task}`).join('\n')}
+
+Month 3:
+${businessModel.timeline.month3.map((task, index) => `• ${task}`).join('\n')}
+
+Month 4:
+${businessModel.timeline.month4.map((task, index) => `• ${task}`).join('\n')}
+
+Month 5:
+${businessModel.timeline.month5.map((task, index) => `• ${task}`).join('\n')}
+
+Month 6:
+${businessModel.timeline.month6.map((task, index) => `• ${task}`).join('\n')}
+
+================================================================================
+SELECTED SOLUTIONS
+================================================================================
+
+${selectedSolutions.map((solution, index) => `
+Solution ${index + 1}: ${solution.title}
+Description: ${solution.description}
+Category: ${solution.category}
+Cost: ${solution.cost}
+Timeline: ${solution.timeline}
+Effectiveness: ${solution.effectiveness}%
+Implementation: ${solution.implementation.join(', ')}
+`).join('\n')}
+
+================================================================================
+CALL TO ACTION
+================================================================================
+
+${businessModel.callToAction}
+
+---
+This business plan was generated specifically for your analysis of "${selectedProblem.title}" 
+and includes ${selectedSolutions.length} selected solutions tailored to your campus implementation needs.
+
+Generated by BuildIt AI Platform
+${new Date().toLocaleString()}
+`
+
+    return content
+  }
+
   // Generate business model
   const generateBusinessModel = async () => {
     if (!selectedProblem) {
@@ -712,7 +866,7 @@ export default function BusinessModelPage() {
                           Start Implementation
                           <ArrowRight className="ml-2 h-5 w-5" />
                         </Button>
-                        <Button size="lg" variant="outline" className="px-8 py-3">
+                        <Button size="lg" variant="outline" className="px-8 py-3" onClick={downloadBusinessPlan}>
                           Download Business Plan
                         </Button>
                       </div>

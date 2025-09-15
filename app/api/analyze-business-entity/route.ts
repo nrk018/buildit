@@ -55,6 +55,8 @@ export async function POST(request: NextRequest) {
         ${fundingPlans || 'Not specified'}
 
         Based on this startup information, provide a comprehensive business entity analysis including:
+        
+        IMPORTANT: All cost estimates and financial information must be in Indian Rupees (₹) format, not dollars ($). Use realistic Indian market pricing and costs.
 
         1. RECOMMENDED ENTITY TYPE:
            - Primary recommendation with detailed reasoning

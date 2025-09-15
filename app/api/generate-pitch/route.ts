@@ -36,9 +36,18 @@ export async function POST(request: NextRequest) {
       
       // Create a comprehensive prompt for pitch generation
       const prompt = `
-        Generate a professional, compelling pitch document for an AI-powered industrial problem-solving startup based on the following specific data:
+        Generate a highly specific, compelling pitch document for a startup based on the EXACT analysis performed. This is NOT a generic template - it must be tailored to the specific problems, solutions, and context provided.
 
-        PROBLEM ANALYSIS:
+        CRITICAL REQUIREMENTS:
+        - Use the EXACT problem titles, descriptions, and details provided
+        - Reference the SPECIFIC image analysis and assessment data
+        - Include the ACTUAL cost estimates and timelines from solutions
+        - Create financial projections based on the REAL problem severity and market data
+        - Make every section specific to this particular analysis
+
+        USER'S SPECIFIC ANALYSIS DATA:
+
+        PROBLEM STATEMENT (User's Exact Input):
         Technical Problem: ${problemStatement.technical.problem}
         Root Cause: ${problemStatement.technical.rootCause}
         Technical Impact: ${problemStatement.technical.impact}
@@ -49,12 +58,12 @@ export async function POST(request: NextRequest) {
         Business Impact: ${problemStatement.nonTechnical.businessImpact}
         Urgency: ${problemStatement.nonTechnical.urgency}
         
-        IMAGE ANALYSIS CONTEXT:
+        IMAGE/ANALYSIS CONTEXT (User's Specific Situation):
         ${imageDescription ? `Image Description: ${imageDescription}` : ''}
         ${overallAssessment ? `Overall Assessment: ${overallAssessment}` : ''}
         ${recommendations ? `Recommendations: ${recommendations}` : ''}
         
-        SELECTED PROBLEMS TO ADDRESS:
+        SPECIFIC PROBLEMS IDENTIFIED (User's Exact Problems):
         ${selectedProblems.map((problem: any, index: number) => `
         ${index + 1}. ${problem.title}
            - Category: ${problem.category}
@@ -62,9 +71,11 @@ export async function POST(request: NextRequest) {
            - Description: ${problem.description}
            - Impact: ${problem.impact || 'Not specified'}
            - Urgency: ${problem.urgency || 'Not specified'}
+           - Estimated Cost: ${problem.estimatedCost || 'Not specified'}
+           - Timeline: ${problem.timeline || 'Not specified'}
         `).join('')}
         
-        PROPOSED SOLUTIONS:
+        SPECIFIC SOLUTIONS SELECTED (User's Exact Solutions):
         ${selectedSolutions.map((solution: any, index: number) => `
         ${index + 1}. ${solution.title}
            - Type: ${solution.type}
@@ -73,38 +84,43 @@ export async function POST(request: NextRequest) {
            - Timeline: ${solution.timeToImplement}
            - Effectiveness: ${solution.effectiveness}%
            - Description: ${solution.description}
+           - Problems Addressed: ${solution.problemsAddressed?.join(', ') || 'Multiple problems'}
+           - ROI: ${solution.roi || '12-18 months'}
         `).join('')}
         
-        COMPANY INFO:
+        COMPANY CONTEXT:
         ${JSON.stringify(companyInfo)}
         
-        MARKET DATA:
+        MARKET CONTEXT:
         ${JSON.stringify(marketData)}
         
-        Please generate a comprehensive, professional pitch document that:
-        1. Creates a compelling narrative around the specific problems identified
-        2. Positions the solutions as direct responses to these problems
-        3. Uses the actual problem data to create realistic market sizing and financial projections
-        4. Tailors the business model to the specific industry and problem types
-        5. Creates specific, actionable next steps based on the problems and solutions
-        6. Uses the image analysis context to add credibility and specificity
-        7. Makes the pitch feel personalized and relevant to the actual analysis performed
-        
-        Structure the pitch as a markdown document with the following sections:
-        - Executive Summary (compelling 2-3 paragraph overview)
-        - Problem Statement (detailed analysis of the specific problems found)
-        - Market Opportunity (tailored to the specific problems and industry)
-        - Solution Overview (how our platform addresses these specific problems)
-        - Proposed Solutions (detailed breakdown of the selected solutions)
-        - Business Model (revenue model tailored to the problem types)
-        - Competitive Analysis (positioning against competitors for these specific problems)
-        - Financial Projections (realistic projections based on the problems and solutions)
-        - Implementation Roadmap (specific steps to address the identified problems)
-        - Risk Analysis (risks specific to these problems and solutions)
-        - Team & Advisory (relevant expertise for these problem types)
-        - Next Steps (specific actions based on the analysis)
-        
-        Make the pitch feel like it was created specifically for this analysis, not a generic template. Use the actual problem data throughout to create a compelling, data-driven narrative.
+        INSTRUCTIONS FOR PITCH GENERATION:
+        1. Start with the EXACT problems the user identified - use their specific titles and descriptions
+        2. Reference the image analysis context to show this is based on real analysis
+        3. Use the ACTUAL cost estimates from their selected solutions
+        4. Create financial projections based on their specific problem severity levels
+        5. Tailor the business model to their exact problem categories and solution types
+        6. Include their specific recommendations and assessment in the narrative
+        7. Make the implementation roadmap specific to their selected solutions and timelines
+        8. Reference their specific stakeholders and business impact throughout
+        9. Use their exact success metrics in the projections
+        10. Make every section feel like it was written specifically for their analysis
+
+        Structure the pitch as a markdown document with these sections, but make each section highly specific to the user's data:
+        - Executive Summary (reference their specific problems and image analysis)
+        - Problem Statement (use their exact problem descriptions and impact)
+        - Market Opportunity (based on their specific problem categories and severity)
+        - Solution Overview (tailored to their selected solutions and effectiveness ratings)
+        - Proposed Solutions (detailed breakdown of their exact solutions with their costs/timelines)
+        - Business Model (revenue model based on their problem types and solution complexity)
+        - Competitive Analysis (positioned against competitors for their specific problem types)
+        - Financial Projections (based on their actual solution costs and problem severity)
+        - Implementation Roadmap (specific to their selected solutions and timelines)
+        - Risk Analysis (risks specific to their problem types and solution complexity)
+        - Team & Advisory (expertise relevant to their specific problem categories)
+        - Next Steps (specific actions based on their exact analysis and recommendations)
+
+        CRITICAL: This pitch must feel like it was written specifically for this user's analysis. Reference their exact problem titles, use their specific cost estimates, and incorporate their image analysis context throughout. Do not use generic examples or templated content.
       `
 
       // Generate content using Gemini
@@ -155,50 +171,58 @@ export async function POST(request: NextRequest) {
 async function generateFallbackPitch(problemStatement: any, selectedProblems: any[], selectedSolutions: any[], companyInfo: any, marketData: any) {
   await new Promise(resolve => setTimeout(resolve, 2000))
   
-  // Create a more dynamic fallback pitch based on the actual data
+  // Create a highly specific fallback pitch based on the user's exact data
   const problemCategories = [...new Set(selectedProblems.map(p => p.category))]
   const severityLevels = [...new Set(selectedProblems.map(p => p.severity))]
   const totalEstimatedCost = selectedSolutions.reduce((sum, sol) => {
-    const cost = sol.estimatedCost.match(/\$([0-9,]+)/)?.[1]?.replace(/,/g, '') || '0'
+    const cost = sol.estimatedCost.match(/₹([0-9,]+)/)?.[1]?.replace(/,/g, '') || '0'
     return sum + parseInt(cost)
   }, 0)
   
-  const pitchDocument = `# AI-Powered Industrial Problem-Solving Solution Pitch
+  // Extract specific user context
+  const hasImageAnalysis = imageDescription && imageDescription.length > 0
+  const hasAssessment = overallAssessment && overallAssessment.length > 0
+  const hasRecommendations = recommendations && recommendations.length > 0
+  const criticalProblems = selectedProblems.filter(p => p.severity === 'critical')
+  const highPriorityProblems = selectedProblems.filter(p => p.urgency === 'immediate' || p.urgency === 'within_week')
+  
+  const pitchDocument = `# Startup Pitch: ${companyInfo.name || 'AI-Powered Industrial Solutions'}
 
 ## Executive Summary
-Based on our comprehensive analysis of your industrial environment, we've identified ${selectedProblems.length} critical problems across ${problemCategories.length} key areas: ${problemCategories.join(', ')}. Our AI-powered solution platform addresses these specific challenges with targeted solutions that can reduce operational costs by up to 30% while significantly improving safety and compliance.
+${hasImageAnalysis ? `Based on our comprehensive analysis of your specific industrial environment (${imageDescription}), ` : 'Based on our comprehensive analysis of your industrial environment, '}we've identified ${selectedProblems.length} specific problems across ${problemCategories.length} key areas: ${problemCategories.join(', ')}. ${hasAssessment ? `Our assessment indicates: ${overallAssessment}. ` : ''}Our AI-powered solution platform addresses these exact challenges with targeted solutions that can reduce operational costs by up to 30% while significantly improving safety and compliance.
 
-The analysis reveals ${severityLevels.includes('critical') ? 'critical safety and operational issues' : 'significant operational inefficiencies'} that require immediate attention. Our proposed solutions, with a total investment of approximately $${totalEstimatedCost.toLocaleString()}, will deliver measurable ROI within 12-18 months.
+The analysis reveals ${criticalProblems.length > 0 ? `${criticalProblems.length} critical issues requiring immediate attention` : severityLevels.includes('high') ? 'high-priority operational issues' : 'significant operational inefficiencies'} that require immediate attention. Our proposed ${selectedSolutions.length} solutions, with a total investment of approximately ₹${totalEstimatedCost.toLocaleString()}, will deliver measurable ROI within 12-18 months. ${hasRecommendations ? `As recommended: ${recommendations}` : ''}
 
 ## Problem Statement
 
-### Critical Issues Identified
+### Your Specific Issues Identified
 ${selectedProblems.map((problem, index) => `
 **${index + 1}. ${problem.title}** (${problem.severity.toUpperCase()} - ${problem.category})
 - **Description:** ${problem.description}
 - **Impact:** ${problem.impact || 'Significant operational and safety risks'}
 - **Urgency:** ${problem.urgency || 'Requires immediate attention'}
 - **Estimated Cost Impact:** ${problem.estimatedCost || 'Not quantified'}
+- **Timeline:** ${problem.timeline || 'Not specified'}
 `).join('')}
 
-### Root Cause Analysis
+### Root Cause Analysis (Based on Your Analysis)
 **Technical Root Causes:**
 ${problemStatement.technical.rootCause || 'Lack of automated monitoring, predictive systems, and real-time problem detection capabilities'}
 
 **Business Root Causes:**
-- Inadequate real-time monitoring systems
-- Manual inspection processes prone to human error
-- Lack of predictive maintenance capabilities
-- Insufficient compliance tracking and reporting
+${problemStatement.nonTechnical.problem || 'Inadequate real-time monitoring systems, manual inspection processes prone to human error, lack of predictive maintenance capabilities, and insufficient compliance tracking and reporting'}
 
-### Impact Assessment
+### Impact Assessment (Your Specific Situation)
 **Technical Impact:**
 ${problemStatement.technical.impact || 'Increased safety risks, equipment downtime, operational inefficiencies, and compliance violations'}
 
 **Business Impact:**
 ${problemStatement.nonTechnical.businessImpact || 'Potential regulatory fines, reduced productivity, increased insurance costs, and competitive disadvantage'}
 
-**Success Metrics:**
+**Stakeholders Affected:**
+${problemStatement.nonTechnical.stakeholders || 'Operations team, safety personnel, management, and regulatory compliance officers'}
+
+**Success Metrics (Your Goals):**
 ${problemStatement.technical.metrics || '30% reduction in safety incidents, 25% decrease in maintenance costs, 40% improvement in compliance scores'}
 
 ## Market Opportunity
@@ -233,11 +257,11 @@ Our platform specifically addresses the ${selectedProblems.length} problems iden
 - **Cloud-Native Platform:** Scalable infrastructure for real-time processing
 - **Mobile-First Interface:** Field-ready applications for immediate problem reporting
 
-## Proposed Solutions
+## Proposed Solutions (Your Selected Solutions)
 
 ${selectedSolutions.map((solution, index) => `
 ### Solution ${index + 1}: ${solution.title}
-**Problem Addressed:** ${selectedProblems.filter(p => solution.problemsAddressed?.includes(p.id)).map(p => p.title).join(', ') || 'Multiple identified problems'}
+**Problems Addressed:** ${selectedProblems.filter(p => solution.problemsAddressed?.includes(p.id)).map(p => p.title).join(', ') || 'Multiple identified problems'}
 
 **Solution Details:**
 - **Type:** ${solution.type} solution
@@ -245,36 +269,39 @@ ${selectedSolutions.map((solution, index) => `
 - **Effectiveness:** ${solution.effectiveness}% problem resolution rate
 - **Description:** ${solution.description}
 
-**Investment & Timeline:**
+**Your Investment & Timeline:**
 - **Cost:** ${solution.estimatedCost}
 - **Implementation:** ${solution.timeToImplement}
 - **ROI:** ${solution.roi || '12-18 months'}
 
-**Expected Outcomes:**
-- Direct resolution of identified ${solution.type} problems
+**Expected Outcomes for Your Situation:**
+- Direct resolution of your identified ${solution.type} problems
 - Measurable improvement in operational efficiency
 - Enhanced safety and compliance posture
 - Reduced long-term operational costs
+- ${solution.implementationSteps ? `Implementation steps: ${solution.implementationSteps.slice(0, 3).join(', ')}` : ''}
+- ${solution.successMetrics ? `Success metrics: ${solution.successMetrics.slice(0, 2).join(', ')}` : ''}
 `).join('')}
 
 ## Business Model
 
-### Revenue Structure (Tailored to Your Problem Profile)
+### Revenue Structure (Based on Your Specific Problem Profile)
 **SaaS Subscription Tiers:**
-- **Starter Plan:** $500-1,000/month (covers ${selectedProblems.length <= 2 ? 'basic problem detection' : 'comprehensive monitoring'})
-- **Professional Plan:** $1,000-2,500/month (includes ${problemCategories.includes('Safety') ? 'advanced safety monitoring' : 'predictive analytics'})
-- **Enterprise Plan:** $2,500-5,000/month (full platform with ${problemCategories.includes('Compliance') ? 'compliance management' : 'advanced analytics'})
+- **Starter Plan:** ₹41,500-83,000/month (covers ${selectedProblems.length <= 2 ? 'basic problem detection' : 'comprehensive monitoring'})
+- **Professional Plan:** ₹83,000-2,07,500/month (includes ${problemCategories.includes('Safety') ? 'advanced safety monitoring' : 'predictive analytics'})
+- **Enterprise Plan:** ₹2,07,500-4,15,000/month (full platform with ${problemCategories.includes('Compliance') ? 'compliance management' : 'advanced analytics'})
 
-**Implementation Services:**
-- **Initial Setup:** $10,000-${totalEstimatedCost > 50000 ? '75,000' : '50,000'} (based on solution complexity)
-- **Custom Integration:** $5,000-25,000 (tailored to your specific systems)
-- **Training & Support:** $2,000-10,000 (comprehensive team training)
+**Implementation Services (Based on Your Solutions):**
+- **Initial Setup:** ₹4,15,000-${totalEstimatedCost > 50000 ? '37,50,000' : '25,00,000'} (based on your solution complexity)
+- **Custom Integration:** ₹2,07,500-12,45,000 (tailored to your specific systems)
+- **Training & Support:** ₹83,000-4,15,000 (comprehensive team training)
 
-### Pricing Justification
+### Pricing Justification (Your Specific ROI)
 Based on your identified problems, the ROI calculation shows:
-- **Cost Avoidance:** $${(totalEstimatedCost * 2).toLocaleString()} annually (preventing problem escalation)
+- **Cost Avoidance:** ₹${(totalEstimatedCost * 2).toLocaleString()} annually (preventing problem escalation)
 - **Efficiency Gains:** 25-40% improvement in operational efficiency
 - **Compliance Benefits:** ${problemCategories.includes('Compliance') ? 'Reduced regulatory risk and potential fines' : 'Improved operational standards'}
+- **Your Specific Benefits:** ${hasRecommendations ? recommendations : 'Measurable improvement in your identified problem areas'}
 
 ## Competitive Analysis
 
@@ -312,26 +339,29 @@ Based on your identified problems, the ROI calculation shows:
 - Operations: 15% ($375K)
 - Working capital: 10% ($250K)
 
-## Implementation Roadmap
+## Implementation Roadmap (Based on Your Selected Solutions)
 
 ### Phase 1: Immediate Problem Resolution (Months 1-3)
-${selectedProblems.filter(p => p.urgency === 'immediate').map(p => `- Deploy solution for ${p.title}`).join('\n') || '- Implement high-priority safety and operational solutions'}
+${highPriorityProblems.length > 0 ? highPriorityProblems.map(p => `- Deploy solution for ${p.title} (${p.urgency})`).join('\n') : selectedProblems.slice(0, 2).map(p => `- Deploy solution for ${p.title}`).join('\n')}
+${selectedSolutions.filter(s => s.complexity === 'simple').map(s => `- Implement ${s.title} (${s.timeToImplement})`).join('\n')}
 
 ### Phase 2: Comprehensive Deployment (Months 4-6)
-- Full platform deployment
+${selectedSolutions.filter(s => s.complexity === 'moderate').map(s => `- Deploy ${s.title} (${s.timeToImplement})`).join('\n')}
+- Full platform deployment and integration
 - Team training and change management
 - Integration with existing systems
 - Performance monitoring and optimization
 
 ### Phase 3: Advanced Features (Months 7-12)
-- Predictive analytics implementation
+${selectedSolutions.filter(s => s.complexity === 'complex').map(s => `- Implement ${s.title} (${s.timeToImplement})`).join('\n')}
 - Advanced reporting and analytics
 - Mobile application deployment
-- Continuous improvement based on data
+- Continuous improvement based on your data
+- ${hasRecommendations ? `Implementation of recommendations: ${recommendations}` : 'Advanced AI model training'}
 
 ### Phase 4: Scale and Optimize (Months 13-18)
 - Multi-facility expansion
-- Advanced AI model training
+- Advanced AI model training based on your problem types
 - Strategic partnerships
 - International expansion planning
 
@@ -363,24 +393,24 @@ ${selectedProblems.filter(p => p.urgency === 'immediate').map(p => `- Deploy sol
 - **Technology Advisor:** AI/ML researcher specializing in ${problemCategories.join(' and ')}
 - **Sales Advisor:** Former VP Sales at ${problemCategories.includes('Compliance') ? 'compliance software company' : 'industrial software company'}
 
-## Next Steps
+## Next Steps (Based on Your Analysis)
 
 ### Immediate Actions (Next 30 Days)
-1. **Technical Validation:** Deep dive into the ${selectedProblems.length} identified problems
-2. **Pilot Program Setup:** Deploy solution for ${selectedProblems[0]?.title || 'highest priority problem'}
+1. **Technical Validation:** Deep dive into your ${selectedProblems.length} identified problems: ${selectedProblems.map(p => p.title).join(', ')}
+2. **Pilot Program Setup:** Deploy solution for ${selectedProblems[0]?.title || 'highest priority problem'} (${selectedProblems[0]?.severity || 'high priority'})
 3. **Stakeholder Alignment:** Present findings to ${problemStatement.nonTechnical.stakeholders || 'key stakeholders'}
 4. **Funding Preparation:** Begin Series A fundraising process
 
 ### Short-term Goals (Next 90 Days)
-1. **Pilot Implementation:** Deploy and validate solution effectiveness
-2. **Customer Feedback:** Collect and integrate user feedback
-3. **Sales Pipeline:** Build qualified prospect list
+1. **Pilot Implementation:** Deploy and validate solution effectiveness for your specific problems
+2. **Customer Feedback:** Collect and integrate user feedback on your selected solutions
+3. **Sales Pipeline:** Build qualified prospect list for similar ${problemCategories.join(' and ')} challenges
 4. **Funding Close:** Complete Series A round
 
 ### Long-term Vision (Next 12 Months)
-1. **Full Deployment:** Implement all ${selectedSolutions.length} proposed solutions
-2. **Market Expansion:** Scale to similar facilities with comparable problems
-3. **Product Enhancement:** Advanced features based on usage data
+1. **Full Deployment:** Implement all ${selectedSolutions.length} proposed solutions: ${selectedSolutions.map(s => s.title).join(', ')}
+2. **Market Expansion:** Scale to similar facilities with comparable ${problemCategories.join(' and ')} problems
+3. **Product Enhancement:** Advanced features based on your usage data and ${hasRecommendations ? `recommendations: ${recommendations}` : 'feedback'}
 4. **Series B Preparation:** Prepare for next funding round
 
 ---
@@ -390,7 +420,7 @@ ${selectedProblems.filter(p => p.urgency === 'immediate').map(p => `- Deploy sol
 - Phone: (555) 123-4567
 - Website: www.industrialsolutions.ai
 
-*This pitch document was generated specifically for your analysis, incorporating the ${selectedProblems.length} problems identified and ${selectedSolutions.length} solutions proposed. The content is tailored to your specific industrial environment and problem profile.*`
+*This pitch document was generated specifically for your analysis, incorporating your ${selectedProblems.length} identified problems (${selectedProblems.map(p => p.title).join(', ')}) and ${selectedSolutions.length} selected solutions (${selectedSolutions.map(s => s.title).join(', ')}). ${hasImageAnalysis ? `The content is based on your image analysis: ${imageDescription}. ` : ''}${hasAssessment ? `Assessment: ${overallAssessment}. ` : ''}${hasRecommendations ? `Recommendations: ${recommendations}. ` : ''}The content is tailored to your specific industrial environment and problem profile.*`
 
     return NextResponse.json({
       success: true,
